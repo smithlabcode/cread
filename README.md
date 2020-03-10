@@ -1,12 +1,13 @@
 # cread2
+
 Software tools for regulatory sequence analysis
 
-CREAD: Comprehensive Regulatory Element Analysis and Discovery
+CREAD: Comprehensive Regulatory Element Analysis and Discovery.
 The CREAD software package is a computational pipeline for understanding
 how DNA and RNA elements participate in regulating gene expression.
-CREAD uses Pattern-Feature-Model framewrok machine learning and pattern 
-visulization to to identify motifs involved in transcriptional
-regulation. CREAD also inclucdes codelibraries to facilitate
+CREAD uses Pattern-Feature-Model framework machine learning and pattern 
+visualization to to identify motifs involved in transcriptional
+regulation. CREAD also includes code libraries to facilitate
 implementation of new tools. 
 
 Building and Installing
@@ -36,7 +37,7 @@ This software has been designed to run in a UNIX-like environment.
 
   This will create all of the executables needed for the CREAD pipleine.
 
-Contacts and bug reports
+Contacts and Bug Reports
 ========================
 
 Andrew D. Smith
@@ -48,4 +49,3 @@ Copyright and License Information
 Copyright (C) 2005-2016
 University of Southern California,
 Andrew D. Smith
-# revert
