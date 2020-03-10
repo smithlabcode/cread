@@ -432,20 +432,23 @@ GeneralizedSuffixNode::top_score(const char *text, GeneralizedSuffixNode **top_n
 		      float **scoremat, size_t width, size_t depth,
 		      float score, float &cutoff) const {
   if (child)
-    for (size_t i = 0; i < alphabet_size; i++)
-      if (child[i])
-	float temp_score = 0;
+    for (size_t i = 0; i < alphabet_size; i++) {
+      float temp_score = 0;
+      if (child[i]) {
 	size_t j = child[i]->MatchBranch(text, scoremat, width, depth, score, 
 					 cutoff, temp_score);
-    if (temp_score > cutoff){
+        if (temp_score > cutoff) {
 	  if (depth + j < width)
 	    child[i]->top_score(text, top_node, scoremat, width, 
 				depth + j, temp_score, cutoff);
+
 	  else if (temp_score > cutoff) {
 	    *top_node = child[i];
 	    cutoff = temp_score;
 	  }
+        }
       }
+    }
       
 }
 
@@ -454,21 +457,25 @@ GeneralizedSuffixNode::top_score(const char *text, GeneralizedSuffixNode **top_n
 		      float **scoremat, size_t width, size_t depth, 
 		      float score, float &cutoff,
 		      size_t min_seqid, size_t max_seqid) const {
-  if (child)
+  if (child) {
     for (size_t i = 0; i < alphabet_size; i++)
       if (child[i]) {
 	float temp_score = 0;
 	size_t j = child[i]->MatchBranch(text, scoremat, width, depth, score, 
 					 cutoff, temp_score);
-    if (temp_score > cutoff && child[i]->HasSequence(min_seqid, max_seqid))
-	  if (depth + j < width)
+
+        if (temp_score > cutoff && child[i]->HasSequence(min_seqid, max_seqid)) {
+	  if (depth + j < width) {
 	    child[i]->top_score(text, top_node, scoremat, width, depth + j,
-				temp_score, cutoff, min_seqid, max_seqid);
+				temp_score, cutoff, min_seqid, max_seqid); }
+
 	  else if (temp_score > cutoff) {
 	    *top_node = child[i];
 	    cutoff = temp_score;
 	  }
+	}
       }
+  }
     
 }
 
@@ -483,11 +490,12 @@ GeneralizedSuffixNode::scores_greater(const char *text, vector<valnode> &V, floa
 	float temp_score = 0;
 	size_t j = child[i]->MatchBranch(text, scoremat, width, depth, score, 
 					 cutoff, temp_score);
-    if (temp_score >= cutoff)
+        if (temp_score >= cutoff) {
 	  if (depth + j < width)
 	    child[i]->scores_greater(text, V, cutoff, scoremat,
 				     width, depth + j, temp_score);
 	  else V.push_back(valnode(temp_score, child[i]));
+	}
       }
       
     }
@@ -504,11 +512,12 @@ GeneralizedSuffixNode::scores_greater(const char *text, vector<valnode> &V, floa
 	float temp_score = 0;
 	size_t j = child[i]->MatchBranch(text, scoremat, width, depth, score, 
 					 cutoff, temp_score);
-    if (temp_score >= cutoff && child[i]->HasSequence(min_seqid, max_seqid))
+        if (temp_score >= cutoff && child[i]->HasSequence(min_seqid, max_seqid)) {
 	  if (depth + j < width) 
 	    child[i]->scores_greater(text, V, cutoff, scoremat, width, 
 				     depth + j, temp_score, min_seqid, max_seqid);
 	  else V.push_back(valnode(temp_score, child[i]));
+        }
       }
     
 }
@@ -520,15 +529,15 @@ GeneralizedSuffixNode::top_scores(const char *text, hit_queue &PQ, size_t &pqsiz
 		       float **scoremat, size_t width, size_t depth, 
 		       float score, float &cutoff) const {
   if (child)
-    for (size_t i = 0; i < alphabet_size; i++)
+    for (size_t i = 0; i < alphabet_size; i++) {
       if (child[i]) {
 	float temp_score = 0;
 	size_t j = child[i]->MatchBranch(text, scoremat, width, depth, score, 
 					 cutoff, temp_score);
-    if (temp_score >= cutoff)
-	  if (depth + j < width)
+        if (temp_score >= cutoff) {
+	  if (depth + j < width) {
 	    child[i]->top_scores(text, PQ, pqsize, n_top, scoremat, width,
-				 depth + j, temp_score, cutoff);
+				 depth + j, temp_score, cutoff); }
 	  else {
 	    PQ.push(valnode(temp_score, child[i]));
 	    pqsize += child[i]->id.size();
@@ -539,8 +548,9 @@ GeneralizedSuffixNode::top_scores(const char *text, hit_queue &PQ, size_t &pqsiz
 	    if (PQ.size() >= n_top)
 	      cutoff = PQ.top().first;
 	  }
+	}
       }
-    
+   } 
 }
 
 void
@@ -553,10 +563,10 @@ GeneralizedSuffixNode::top_scores(const char *text, hit_queue &PQ, size_t &pqsiz
 	float temp_score = 0;
 	size_t j = child[i]->MatchBranch(text, scoremat, width, depth, score, 
 					 cutoff, temp_score);
-    if (temp_score >= cutoff && child[i]->HasSequence(min_seqid, max_seqid))
-	  if (depth + j < width)
+        if (temp_score >= cutoff && child[i]->HasSequence(min_seqid, max_seqid)) {
+	  if (depth + j < width) {
 	    child[i]->top_scores(text, PQ, pqsize, n_top, scoremat, width, depth + j, 
-				 temp_score, cutoff, min_seqid, max_seqid);
+				 temp_score, cutoff, min_seqid, max_seqid); }
 	  else {
 	    PQ.push(valnode(temp_score, child[i]));
 	    pqsize += child[i]->id.size();
@@ -567,7 +577,8 @@ GeneralizedSuffixNode::top_scores(const char *text, hit_queue &PQ, size_t &pqsiz
 	    if (PQ.size() >= n_top)
 	      cutoff = PQ.top().first;
 	  }
-      }
+        }
+    }
     
 }
 
@@ -576,14 +587,15 @@ GeneralizedSuffixNode::GetRepeatLocations(vector<size_t> &B, size_t threshold_nu
 			       size_t min_depth, size_t depth) const {
   if (child)
     for (size_t i = 0; i < alphabet_size; i++)
+   
+        if (child[i] && child[i]->id.size() >= threshold_number) {
     
-        if (child[i] && child[i]->id.size() >= threshold_number)
-    
-            if (depth + child[i]->edge_length() >= min_depth)
-                B.insert(B.end(), child[i]->id.begin() + 1, child[i]->id.end());
-            else
+            if (depth + child[i]->edge_length() >= min_depth) {
+                B.insert(B.end(), child[i]->id.begin() + 1, child[i]->id.end()); }
+            else {
                 child[i]->GetRepeatLocations(B, threshold_number, min_depth,
-                                depth + child[i]->edge_length());
+                                depth + child[i]->edge_length()); }
+	}
 }
 
 void

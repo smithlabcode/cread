@@ -29,6 +29,7 @@
 #include "FastaFile.hpp"
 #include "SuffixTree.hpp"
 #include "WordMatcher.hpp"
+#include "smithlab_utils.hpp"
 #include "smithlab_os.hpp"
 #include "OptionParser.hpp"
 

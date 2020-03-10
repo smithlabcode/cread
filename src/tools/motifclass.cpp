@@ -704,10 +704,10 @@ int main(int argc, const char *argv[]) {
       *output << (motifs[i]) << endl;
     if (output != &cout) delete output;
   }
-  catch (SMITHLABOptionException &e) {
+  /*catch (SMITHLABOptionException &e) {
         cerr << e.what() << endl;
         return EXIT_FAILURE;
-  }
+  }*/
   catch (CREADException &e) {
     cerr << "ERROR:\t" << e.what() << endl;
     return EXIT_FAILURE;

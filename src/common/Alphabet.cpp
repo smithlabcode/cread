@@ -34,7 +34,7 @@ static const int b2i_size = 20;
  static const int b2i[] = {
 //A, b, C, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, T
   0,-1, 1,-1,-1,-1, 2,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 3
-};*
+};
 static const int b2i_rc[] = {
 //A, b, C, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, T
   3,-1, 2,-1,-1,-1, 1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 0
@@ -89,11 +89,11 @@ complement(int i) {
 }*/
 
 
-bool
+/*bool
 valid_base(char c) {
   char i = std::toupper(c);
   return (i == 'A' || i == 'C' || i == 'G' || i == 'T');
-}
+}*/
 
 bool
 isgap(char c) {
@@ -181,7 +181,7 @@ count_valid_bases(const vector<string>& s) {
 }
 
 
-size_t
+/*size_t
 kmer_counts(const vector<string> &seqs,
             vector<size_t> &counts, size_t k) {
   counts.clear();
@@ -213,7 +213,7 @@ mer2index(const char *s, size_t n) {
     multiplier *= alphabet_size;
   } while (n > 0);
   return index;
-}
+}*/
 
 size_t
 mer2index_rc(const char *s, size_t n) {

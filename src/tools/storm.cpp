@@ -29,6 +29,7 @@
 #include "WordTable.hpp"
 #include "OptionParser.hpp"
 #include "smithlab_os.hpp"
+#include "smithlab_utils.hpp"
 
 using std::string;
 using std::vector;
