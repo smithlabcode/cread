@@ -1,0 +1,17 @@
+bin/
+#no compiled object file
+*.[oa]
+src/tools/basecomp
+src/tools/bbcomp
+src/tools/decoymasker
+src/tools/feateval
+src/tools/formattable
+src/tools/getcontext
+src/tools/joinmotifs
+src/tools/kmercomp
+src/tools/matcompare
+src/tools/motifclass
+src/tools/sortmotifs
+src/tools/storm
+src/tools/uniqmotifs
+
