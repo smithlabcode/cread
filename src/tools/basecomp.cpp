@@ -40,7 +40,7 @@ compute_base_comp(const string &infile, vector<double> &basecomp) {
   
   std::ifstream in(infile.c_str());
   if (!in)
-    throw SMITHLABException("cannot open file: " + infile);
+    throw std::runtime_error("cannot open file: " + infile);
   
   string line;
   while (getline(in, line)) {
@@ -156,7 +156,7 @@ main(int argc, const char **argv) {
       out << format_basecomp(FULL_PRECISION, decimal_places, basecomp) << endl;
     
   }
-  catch (SMITHLABException &e) {
+  catch (std::runtime_error &e) {
     cerr << "ERROR: " << e.what() << endl;
     return EXIT_FAILURE;
   }

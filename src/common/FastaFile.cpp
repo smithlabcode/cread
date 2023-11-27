@@ -63,7 +63,7 @@ BigFastaFile::make_index(string filename) {
   std::ifstream in(filename.c_str());
   if (!in)
     throw FastaFileException("cannot open input file " + filename);
-  char buffer[input_buffer_size + 1];
+  char *buffer = new char[input_buffer_size + 1];
   size_t offset = 0;
   size_t sequence_start = 0;
   string name;
@@ -105,6 +105,7 @@ BigFastaFile::make_index(string filename) {
     }
     offset += characters_read;
   }
+  delete[] buffer;
   SequenceTable.push_back(SequenceInfo(name, sequence_start,
                                        offset, newlines));
   in.close();
@@ -258,7 +259,7 @@ FastaFile::read() const {
   string s, name;
   bool first_line = true;
   while (!in.eof()) {
-    char buffer[input_buffer_size + 1];
+    char *buffer = new char[input_buffer_size + 1];
     in.getline(buffer, input_buffer_size);
     if (in.gcount() == static_cast<int>(input_buffer_size))
       throw FastaFileException("Line in " + name + "\nexceeds max length: " +
@@ -277,6 +278,7 @@ FastaFile::read() const {
       s = "";
     }
     else s += buffer;
+    delete[] buffer;
   }
   if (!first_line && s.length() > 0) {
     names.push_back(name);
@@ -365,7 +367,7 @@ FastaFile::base_comp_from_file(string fn, float *base_comp,
                                size_t buffer_size) {
   std::ifstream fin(fn.c_str());
   bool reading_sequence = true;
-  char buffer[buffer_size + 1];
+  char *buffer = new char[buffer_size + 1];
   std::fill(base_comp, base_comp + alphabet_size, 0);
   while (!fin.eof()) {
     fin.clear();
@@ -395,7 +397,7 @@ FastaFile::base_comp_from_files(const vector<string>& fns,
                                 vector<float>& base_comp,
                                 size_t buffer_size) {
   vector<size_t> count(alphabet_size, 0);
-  char buffer[buffer_size + 1];
+  char *buffer = new char[buffer_size + 1];
   for (size_t i = 0; i < fns.size(); ++i) {
     std::ifstream fin(fns[i].c_str());
     if (!fin)
@@ -417,6 +419,8 @@ FastaFile::base_comp_from_files(const vector<string>& fns,
     }
     fin.close();
   }
+  delete[] buffer;
+
   // get the total number of valid bases
   const double total = std::accumulate(count.begin(), count.end(), 0.0);
   base_comp.clear();

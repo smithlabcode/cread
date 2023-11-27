@@ -32,9 +32,9 @@ PROGS = basecomp bbcomp decoymasker getcontext \
         storm
 
 CXX = g++
-CFLAGS = -Wall -fmessage-length=50
-CXXFLAGS = -std=c++11 -Wall -fmessage-length=50
-OPTFLAGS = -O2
+CFLAGS = -Wall
+CXXFLAGS = -std=c++17 -Wall -Wextra
+OPTFLAGS = -O2 -DNDEBUG
 DEBUGFLAGS = -g
 
 ifdef DEBUG

@@ -60,19 +60,19 @@ expected_freq(const string &s, const vector<float>& base_comp) {
   return freq;
 }
 
-Word 
+Word
 make_kmer(string w, string a, size_t count, float total,
-	  const vector<float>& base_comp) {
+          const vector<float>& base_comp) {
   Word word(w, a);
   word.set_attribute(kmer_count_label, count);
   word.set_attribute(kmer_freq_label, count/total);
-  word.set_attribute(kmer_freq_lod_label, cread::log2(count/total) - 
-		     cread::log2(expected_freq(w, base_comp)));
+  word.set_attribute(kmer_freq_lod_label, cread::log2(count/total) -
+                     cread::log2(expected_freq(w, base_comp)));
   return word;
 }
 
 struct Greater2ndKey {
-  template <class T, class U> 
+  template <class T, class U>
   bool operator()(const pair<T, U> &a, const pair<T, U> &b) const {
     return a.second > b.second;
   }
@@ -88,8 +88,8 @@ i2mer(char *s, size_t n, size_t index) {
 }
 
 float
-max_valid_matches(const vector<string>& sequences, 
-		  const size_t width) {
+max_valid_matches(const vector<string>& sequences,
+                  const size_t width) {
   float total = 0;
   for (size_t i = 0; i < sequences.size(); ++i)
     total += sequences[i].length() - width + 1;
@@ -152,15 +152,15 @@ int main(int argc, const char **argv) {
     if (!kmersfile.empty()) {
       words = Word::ReadWordVector(kmersfile.c_str());
       for (size_t i = 0; i < words.size(); ++i) {
-	const float total = max_valid_matches(sequences, words[i].get_width());
-	vector<string> matches;
-	get_matches(words[i], sequences, words[i].get_width(), matches);
-	words[i].set_attribute(kmer_count_label, matches.size());
-	words[i].set_attribute(kmer_freq_label, matches.size()/total);
-	words[i].set_attribute(kmer_freq_lod_label, 
-			       cread::log2(matches.size()/total) - 
-			       cread::log2(expected_freq(words[i].get_word(), 
-							 base_comp)));
+        const float total = max_valid_matches(sequences, words[i].get_width());
+        vector<string> matches;
+        get_matches(words[i], sequences, words[i].get_width(), matches);
+        words[i].set_attribute(kmer_count_label, matches.size());
+        words[i].set_attribute(kmer_freq_label, matches.size()/total);
+        words[i].set_attribute(kmer_freq_lod_label,
+                               cread::log2(matches.size()/total) -
+                               cread::log2(expected_freq(words[i].get_word(),
+                                                         base_comp)));
       }
       ostream* output = (!outfile.empty()) ? new ofstream(outfile.c_str()) : &cout;
       copy(words.begin(), words.end(), ostream_iterator<Word>(*output, "\n"));
@@ -172,12 +172,12 @@ int main(int argc, const char **argv) {
 
       ostream* output = (!outfile.empty()) ? new ofstream(outfile.c_str()) : &cout;
       for (size_t i = 0; i < counts.size(); ++i) {
-	char char_kmer[kmer + 1];
-	char_kmer[kmer] = '\0';
-	i2mer(char_kmer, kmer, i);
-	const string the_kmer(char_kmer);
- 	*output << make_kmer(the_kmer, the_kmer,
-			     counts[i], total, base_comp) << endl;
+        vector<char> char_kmer(kmer + 1);
+        char_kmer[kmer] = '\0';
+        i2mer(char_kmer.data(), kmer, i);
+        const string the_kmer(char_kmer.data());
+        *output << make_kmer(the_kmer, the_kmer,
+                             counts[i], total, base_comp) << endl;
       }
       if (output != &cout) delete output;
     }
