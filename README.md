@@ -13,16 +13,14 @@ libraries to facilitate implementation of new tools.
 Building and Installing
 =======================
 
-You may download the latest version of CREAD from:
-http://smithlabresearch.org/software/cread This software has been
-designed to run in a UNIX-like environment.
+This software has been designed to run in a UNIX-like environment.
 
 * Step 0
 
   This software package requires a functioning installation of the GNU
   Scientific Library (GSL). If you don't already have this installed,
-  you will need to download and install it from
-  http://www.gnu.org/software/gsl/
+  you can download it [here](http://www.gnu.org/software/gsl/). You can
+  also get it from apt, conda or brew.
 
   If GSL is not installed in the default path,
   ```
@@ -33,13 +31,14 @@ designed to run in a UNIX-like environment.
 
 * Step 1
 
-  To build the binaries type the following where '>' is your prompt
-  and the CWD is the root of the distribution:
-
-    > make
-
-  This will create all of the executables needed for the CREAD
-  pipleine.
+  To build the binaries type the following from the root of the
+  source tree:
+  ```console
+  make
+  make install
+  ```
+  This will create all of the binaries and then create a `bin`
+  directory, in the current directory, containing all the binaries.
 
 Contacts and Bug Reports
 ========================
