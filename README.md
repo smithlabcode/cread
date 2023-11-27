@@ -23,7 +23,7 @@ This software has been designed to run in a UNIX-like environment.
   also get it from apt, conda or brew.
 
   If GSL is not installed in the default path,
-  ```
+  ```console
   export CPATH=/path_to_my_gsl/include
   export LIBRARY_PATH=/path_to_my_gsl/lib
   ```
