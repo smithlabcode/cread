@@ -15,7 +15,7 @@ Building and Installing
 
 This software has been designed to run in a UNIX-like environment.
 
-* Step 0
+* Step 1
 
   This software package requires a functioning installation of the GNU
   Scientific Library (GSL). If you don't already have this installed,
@@ -29,7 +29,13 @@ This software has been designed to run in a UNIX-like environment.
   ```
   will add search paths for compiling and linking.
 
-* Step 1
+  You will also need to clone this repo recursively to get the source
+  with submodules:
+  ```console
+  git clone --recursive https://github.com/smithlabcode/cread.git
+  ```
+
+* Step 2
 
   To build the binaries type the following from the root of the
   source tree:
