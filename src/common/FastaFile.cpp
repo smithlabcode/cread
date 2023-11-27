@@ -199,7 +199,7 @@ BigFastaFile::get_sequences(const size_t chunk_start,
     sequences.push_back(string());
     remove_copy_if(sequence_start, sequence_end,
                    back_inserter(sequences.back()),
-                   bind2nd(std::equal_to<char>(), '\n'));
+                   [](const char x) {return x == '\n';});
   }
   // done with the buffer, let's delete it
   delete[] buffer;
@@ -316,35 +316,31 @@ FastaFile::get_descriptions() const {
 
 void
 FastaFile::clean() const {
-  for (vector<string>::iterator i = sequences.begin();
-       i != sequences.end(); ++i)
-    replace_if(i->begin(), i->end(),
-               std::not1(std::ptr_fun(valid_base)), 'N');
+  for (auto &i : sequences)
+    replace_if(begin(i), end(i), [](const char x) {return !valid_base(x);}, 'N');
 }
 
 
 void
-FastaFile::clean(vector<string>& sequences) {
-  for (vector<string>::iterator i = sequences.begin();
-       i != sequences.end(); ++i)
-    replace_if(i->begin(), i->end(),
-               std::not1(std::ptr_fun(valid_base)), 'N');
+FastaFile::clean(vector<string> &seqs) {
+  for (auto &i : seqs)
+    replace_if(begin(i), end(i), [](const char x) {return !valid_base(x);}, 'N');
 }
 
 
 void
 FastaFile::toupper() const {
-  for (vector<string>::iterator i = sequences.begin();
-       i != sequences.end(); ++i)
-    std::transform(i->begin(), i->end(), i->begin(), ::toupper);
+  for (auto &i : sequences)
+    std::transform(cbegin(i), cend(i), begin(i),
+                   [](const char x) {return ::toupper(x);});
 }
 
 
 void
-FastaFile::toupper(vector<string>& sequences) {
-  for (vector<string>::iterator i = sequences.begin();
-       i != sequences.end(); ++i)
-    std::transform(i->begin(), i->end(), i->begin(), ::toupper);
+FastaFile::toupper(vector<string> &seqs) {
+  for (auto &i : seqs)
+    std::transform(cbegin(i), cend(i), begin(i),
+                   [](const char x) {return ::toupper(x);});
 }
 
 
@@ -388,7 +384,7 @@ FastaFile::base_comp_from_file(string fn, float *base_comp,
                                       base_comp + alphabet_size, 0.0);
   // normalize the base composition
   std::transform(base_comp, base_comp + alphabet_size, base_comp,
-                 bind2nd(std::divides<float>(), total));
+                 [&](const float x) {return x/total;});
 }
 
 
@@ -424,8 +420,8 @@ FastaFile::base_comp_from_files(const vector<string>& fns,
   // get the total number of valid bases
   const double total = std::accumulate(count.begin(), count.end(), 0.0);
   base_comp.clear();
-  transform(count.begin(), count.end(), back_inserter(base_comp),
-            std::bind2nd(std::divides<double>(), total));
+  transform(cbegin(count), cend(count), back_inserter(base_comp),
+            [&](const char x) {return x/total;});
 }
 
 

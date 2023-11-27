@@ -16,7 +16,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with CREAD; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA  
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include "GeneralizedSuffixTree.hpp"
@@ -47,8 +47,8 @@ using std::endl;
 typedef GeneralizedSuffixNode GSNode;
 
 typedef std::pair<float, GeneralizedSuffixNode*> valnode;
-typedef std::priority_queue<valnode, std::vector<valnode>, 
-			    std::greater<valnode> > hit_queue;
+typedef std::priority_queue<valnode, std::vector<valnode>,
+                            std::greater<valnode> > hit_queue;
 
 class GeneralizedSuffixNode {
 
@@ -60,28 +60,28 @@ class GeneralizedSuffixNode {
   std::vector<size_t> id;
   GeneralizedSuffixNode* link;
   GeneralizedSuffixNode** child;
-  
+
   void allocate_children();
-  
+
   size_t WalkDown(const char* text, size_t offset) const;
   GeneralizedSuffixNode* JumpUp(int &total_characters_jumped);
   GeneralizedSuffixNode* JumpDown(const char *text,
-		       size_t position_in_text,
-		       int &characters_above_split_point);
+                       size_t position_in_text,
+                       int &characters_above_split_point);
 
-  GeneralizedSuffixNode* Split(GeneralizedSuffixNode*, size_t, const char*, 
-			       size_t, size_t, size_t, size_t);
+  GeneralizedSuffixNode* Split(GeneralizedSuffixNode*, size_t, const char*,
+                               size_t, size_t, size_t, size_t);
   GeneralizedSuffixNode* InsertUnder(const char* the_text,
-				     size_t start_param, 
-				     size_t end_param, 
-				     size_t depth,
-				     size_t index);
-  
+                                     size_t start_param,
+                                     size_t end_param,
+                                     size_t depth,
+                                     size_t index);
+
   size_t MatchBranch(const char *text, float **scoring_matrix, size_t width,
-		     size_t depth, float score, float best_so_far,
-		     float &temp_score) const;
+                     size_t depth, float score, float best_so_far,
+                     float &temp_score) const;
   bool HasSequence(size_t min_seqid, size_t max_seqid) const;
-  
+
   size_t edge_length() const {
     return end - start;
   }
@@ -98,15 +98,15 @@ class GeneralizedSuffixNode {
 public:
 
   GeneralizedSuffixNode(size_t = 0, size_t = 0, size_t = 0, size_t = 0,
-	     GeneralizedSuffixNode* = 0, GeneralizedSuffixNode* = 0, GeneralizedSuffixNode** = 0);
+             GeneralizedSuffixNode* = 0, GeneralizedSuffixNode* = 0, GeneralizedSuffixNode** = 0);
   ~GeneralizedSuffixNode();
-  
+
   void BuildGeneralizedSuffixTree(std::string&, size_t);
   void CollectIndices();
-  
+
   std::string tostring(const char*, size_t) const;
   void Insert(char*, size_t, size_t, size_t, size_t);
-  
+
   static char Int2Base(size_t i) {
     static char itob[4] = { 'A', 'C', 'G', 'T' };
     return ( i > 3) ? 'N' : itob[i]; //rm "i<0||" always false
@@ -114,43 +114,43 @@ public:
   static int b2i(char b) {
     static int btoi[20] = {
       //A, b, C, d, e, f, g, h, i, j, k, l, m, N, o, p, q, r, s, T
-      0,-1, 1,-1,-1,-1, 2,-1,-1,-1,-1,-1,-1, 4,-1,-1,-1,-1,-1, 3 
+      0,-1, 1,-1,-1,-1, 2,-1,-1,-1,-1,-1,-1, 4,-1,-1,-1,-1,-1, 3
     };
     return (b > 'T' || b < 'A') ? -1 : btoi[b - 'A'];
   }
   static bool valid(char b) {return b2i(b) != -1;}
-  
+
   // Get the top score and index
-  void top_score(const char*, GeneralizedSuffixNode **top_node, float**, size_t, 
-		 size_t, float, float&) const;
+  void top_score(const char*, GeneralizedSuffixNode **top_node, float**, size_t,
+                 size_t, float, float&) const;
   // Get the top score and index for specified sequence
-  void top_score(const char*, GeneralizedSuffixNode **top_node, float**, size_t, 
-		 size_t, float, float&, size_t, size_t) const;
+  void top_score(const char*, GeneralizedSuffixNode **top_node, float**, size_t,
+                 size_t, float, float&, size_t, size_t) const;
   // Get top scores
-  void top_scores(const char*, hit_queue&, size_t&, size_t, float**, 
-		  size_t, size_t, float, float&) const;
+  void top_scores(const char*, hit_queue&, size_t&, size_t, float**,
+                  size_t, size_t, float, float&) const;
   // Get top scores specifying sequence
-  void top_scores(const char*, hit_queue&, size_t&, size_t, float**, 
-		  size_t, size_t, float, float&, size_t, size_t) const;
+  void top_scores(const char*, hit_queue&, size_t&, size_t, float**,
+                  size_t, size_t, float, float&, size_t, size_t) const;
   // Get scores greater than
-  void scores_greater(const char*, std::vector<valnode>&, float, float**, size_t, 
-		      size_t, float) const;
+  void scores_greater(const char*, std::vector<valnode>&, float, float**, size_t,
+                      size_t, float) const;
   // Get scores greater than, specifying sequence
-  void scores_greater(const char*, std::vector<valnode>&, float, float**, size_t, 
-		      size_t, float, size_t, size_t) const;
+  void scores_greater(const char*, std::vector<valnode>&, float, float**, size_t,
+                      size_t, float, size_t, size_t) const;
   void window_scores_greater(const char*, std::vector<valnode>&, float, float**,
-			     size_t, size_t, float, size_t, size_t) const;
+                             size_t, size_t, float, size_t, size_t) const;
 
 
 
   /*************** GET REPEATS ****************/
   void GetRepeatLocations(std::vector<size_t>&, size_t, size_t, size_t) const;
   void get_kmer_counts(std::vector<std::pair<std::string, size_t> > &,
-		       size_t, size_t, const char *, std::string&) const;
+                       size_t, size_t, const char *, std::string&) const;
 
   size_t get_count(const char *w, const char *text) const;
-  void get_locations(const char *w, const char *text, 
-		     std::vector<size_t> &locations) const;
+  void get_locations(const char *w, const char *text,
+                     std::vector<size_t> &locations) const;
 
   friend class GeneralizedSuffixTree;
 
@@ -158,10 +158,10 @@ public:
 
 
 
-inline size_t 
+inline size_t
 GeneralizedSuffixNode::MatchBranch(const char *text, float **scoring_matrix, size_t width,
-			size_t depth, float score, float cutoff,
-			float &temp_score) const {
+                        size_t depth, float score, float cutoff,
+                        float &temp_score) const {
   size_t j = 0;
   temp_score = score;
   const size_t limit = std::min(end - start, width - depth);
@@ -176,7 +176,7 @@ GeneralizedSuffixNode::MatchBranch(const char *text, float **scoring_matrix, siz
 
 inline bool
 GeneralizedSuffixNode::HasSequence(size_t min_seqid, size_t max_seqid) const {
-  std::vector<size_t>::const_iterator k = 
+  std::vector<size_t>::const_iterator k =
     lower_bound(id.begin(), id.end(), min_seqid);
   return (k != id.end() && *k < max_seqid);
 }
@@ -195,7 +195,7 @@ GeneralizedSuffixNode::allocate_children() {
  * constructor
  ***************/
 GeneralizedSuffixNode::GeneralizedSuffixNode(size_t s, size_t e, size_t pl, size_t c,
-		       GeneralizedSuffixNode *p, GeneralizedSuffixNode *l, GeneralizedSuffixNode **ch) :
+                       GeneralizedSuffixNode *p, GeneralizedSuffixNode *l, GeneralizedSuffixNode **ch) :
   start(s), end(e), path_length(pl), count(c), parent(p), link(l), child(ch) {}
 
 /**************
@@ -203,9 +203,9 @@ GeneralizedSuffixNode::GeneralizedSuffixNode(size_t s, size_t e, size_t pl, size
  **************/
 GeneralizedSuffixNode::~GeneralizedSuffixNode() {
   if (has_children()) {
-    for (size_t i = 0; i < alphabet_size + 1; ++i) 
+    for (size_t i = 0; i < alphabet_size + 1; ++i)
       if (has_child(i))
-	delete child[i];
+        delete child[i];
     delete[] child;
   }
 }
@@ -221,7 +221,7 @@ GeneralizedSuffixNode::tostring(const char *text, size_t depth) const {
   s << "]";
   s << endl;
   for (size_t i = 0; has_children() && i < alphabet_size + 1; i++)
-    if (has_child(i)) 
+    if (has_child(i))
       s << child[i]->tostring(text, depth + 1);
   return s.str();
 }
@@ -247,15 +247,15 @@ GeneralizedSuffixNode::WalkDown(const char *text, const size_t offset) const {
  * implements the "skip-count trick" from Gusfield.
  *********************************************************************/
 GeneralizedSuffixNode *
-GeneralizedSuffixNode::JumpDown(const char *text, 
-		     size_t position_in_text,
-		     int &characters_above_split_point) {
+GeneralizedSuffixNode::JumpDown(const char *text,
+                     size_t position_in_text,
+                     int &characters_above_split_point) {
   GeneralizedSuffixNode *current_node = this;
   size_t next_child_index = b2i(text[position_in_text]);
-  while (current_node->has_children() && 
-	 current_node->has_child(next_child_index) &&
-	 (characters_above_split_point >
-	  static_cast<int>(current_node->child[next_child_index]->edge_length()))) {
+  while (current_node->has_children() &&
+         current_node->has_child(next_child_index) &&
+         (characters_above_split_point >
+          static_cast<int>(current_node->child[next_child_index]->edge_length()))) {
     current_node = current_node->child[next_child_index];
     position_in_text += current_node->edge_length();
     characters_above_split_point -= current_node->edge_length();
@@ -271,7 +271,7 @@ GeneralizedSuffixNode::JumpDown(const char *text,
  * matched when the next insertion occurs that many characters below
  * the GeneralizedSuffixNode at the end of the link out of the GeneralizedSuffixNode where
  * the "jumping up" ends.
- *************************************************************************/ 
+ *************************************************************************/
 GeneralizedSuffixNode *
 GeneralizedSuffixNode::JumpUp(int &total_characters_jumped) {
   GeneralizedSuffixNode *current_node = this;
@@ -291,13 +291,13 @@ GeneralizedSuffixNode::JumpUp(int &total_characters_jumped) {
  ***************************/
 GeneralizedSuffixNode *
 GeneralizedSuffixNode::Split(GeneralizedSuffixNode *old_child, size_t depth, const char *text,
-		  size_t s, size_t e, size_t parent_tpl, size_t index) {
+                  size_t s, size_t e, size_t parent_tpl, size_t index) {
   // Create the new nodes
   GeneralizedSuffixNode *new_child = new GeneralizedSuffixNode(old_child->start,
-					 old_child->start + depth,
-					 parent_tpl + depth, count, this);
+                                         old_child->start + depth,
+                                         parent_tpl + depth, count, this);
   GeneralizedSuffixNode *new_leaf = new GeneralizedSuffixNode(s + depth, e, parent_tpl + e - s,
-					1, new_child);
+                                        1, new_child);
   new_leaf->id.push_back(index);
   // Modify the old child
   old_child->parent = new_child;
@@ -315,8 +315,8 @@ GeneralizedSuffixNode::Split(GeneralizedSuffixNode *old_child, size_t depth, con
  * (which is given a string not in the alphabet).
  ******************************/
 GeneralizedSuffixNode *
-GeneralizedSuffixNode::InsertUnder(const char *text, size_t s, size_t e, 
-			size_t depth, size_t index) {
+GeneralizedSuffixNode::InsertUnder(const char *text, size_t s, size_t e,
+                        size_t depth, size_t index) {
   int i = b2i(text[s]);
   if (i == -1) return this;
   if (!has_children())
@@ -327,28 +327,28 @@ GeneralizedSuffixNode::InsertUnder(const char *text, size_t s, size_t e,
   }
   else {
     // !!! The following comment (referring to (depth == 0) condition)
-    // might be wrong: 
+    // might be wrong:
     // --> This means that the previous "jumpUp" landed at the root <--
-    if (depth == 0) 
+    if (depth == 0)
       depth = child[i]->WalkDown(text, s); // So a "walkDown" is in order.
     if (depth < e - s) {
       if (depth < child[i]->edge_length()) {
-	child[i] = Split(child[i], depth, text, s, e, path_length, index);
-	/* This is commented out below so that all the ids are only
-	   at the leaves */
-	// child[i]->id.push_back(index);
-	return child[i];
+        child[i] = Split(child[i], depth, text, s, e, path_length, index);
+        /* This is commented out below so that all the ids are only
+           at the leaves */
+        // child[i]->id.push_back(index);
+        return child[i];
       }
       else {
-	return child[i]->InsertUnder(text, s + child[i]->edge_length(), e,
-				     depth - child[i]->edge_length(), index);
+        return child[i]->InsertUnder(text, s + child[i]->edge_length(), e,
+                                     depth - child[i]->edge_length(), index);
       }
     }
     // This next line is here for bounded depth trees, where if a
     // substring is inserted that is identical to the current
     // substring, then that substring will end at the exact same spot
     // as the previous, and require the 'index' to be added
-    else if (depth == child[i]->edge_length()) 
+    else if (depth == child[i]->edge_length())
       child[i]->id.push_back(index);
   }
   return this;
@@ -359,43 +359,43 @@ GeneralizedSuffixNode::InsertUnder(const char *text, size_t s, size_t e,
  ************************************/
 void
 GeneralizedSuffixNode::BuildGeneralizedSuffixTree(string &text, size_t max_depth) {
-  
+
   // set the maximum (string) depth of the tree
   max_depth = min(max_depth, text.length());
 
   GeneralizedSuffixNode *current_node = this->link = this;
   GeneralizedSuffixNode *previous_node = 0;
-  
+
   // loop to insert each suffix
   for (size_t i = 0; i < text.length(); i++) {
     // jump up until a node with a link is found (k keeps track of how
     // many nodes were jumped).
     int distance_above_insertion = 0; // Keeps track of nodes jumped up
     current_node = current_node->JumpUp(distance_above_insertion);
-    // if the current_node is the root... 
+    // if the current_node is the root...
     if (current_node == current_node->link) {
-      assert(this == current_node && 
-	     "current_node has self link, but is not root!");
+      assert(this == current_node &&
+             "current_node has self link, but is not root!");
       // this clause should only be satisfied 3 times (alphabet_size
       // - 1) because it corresponds to insertion of a suffix that
       // starts with a completely new symbol.
       if (distance_above_insertion > 0)
-	--distance_above_insertion;
+        --distance_above_insertion;
     }
     // Jump down the same number of nodes we jumped up.
-    current_node = 
-      current_node->link->JumpDown(text.c_str(), 
-				   i + current_node->link->path_length, 
-				   distance_above_insertion);
+    current_node =
+      current_node->link->JumpDown(text.c_str(),
+                                   i + current_node->link->path_length,
+                                   distance_above_insertion);
     // We have found the parent of the next insertion point, so
     // insert under it.
     const size_t start = i + current_node->path_length;
     const size_t end = min(text.length(), i + max_depth);
     current_node = current_node->InsertUnder(text.c_str(), start, end,
-					     distance_above_insertion, i);
+                                             distance_above_insertion, i);
     // If a link should be made, make it.
     if (previous_node &&
-	previous_node->path_length == current_node->path_length + 1)
+        previous_node->path_length == current_node->path_length + 1)
       previous_node->link = current_node;
     // make the previous node point to the current_node node in
     // preparation for the next iteration.
@@ -413,10 +413,10 @@ GeneralizedSuffixNode::CollectIndices() {
     // just an 'N'.
     for (size_t i = 0; i <= alphabet_size; ++i)
       if (child[i]) {
-	child[i]->CollectIndices();
-	const size_t previous_end = id.size();
-	id.insert(id.end(), child[i]->id.begin(), child[i]->id.end());
-	std::inplace_merge(id.begin(), id.begin() + previous_end, id.end());
+        child[i]->CollectIndices();
+        const size_t previous_end = id.size();
+        id.insert(id.end(), child[i]->id.begin(), child[i]->id.end());
+        std::inplace_merge(id.begin(), id.begin() + previous_end, id.end());
       }
   }
   /* The commented-out code below should not be needed, because all
@@ -429,191 +429,191 @@ GeneralizedSuffixNode::CollectIndices() {
 
 void
 GeneralizedSuffixNode::top_score(const char *text, GeneralizedSuffixNode **top_node,
-		      float **scoremat, size_t width, size_t depth,
-		      float score, float &cutoff) const {
+                      float **scoremat, size_t width, size_t depth,
+                      float score, float &cutoff) const {
   if (child)
     for (size_t i = 0; i < alphabet_size; i++) {
       float temp_score = 0;
       if (child[i]) {
-	size_t j = child[i]->MatchBranch(text, scoremat, width, depth, score, 
-					 cutoff, temp_score);
+        size_t j = child[i]->MatchBranch(text, scoremat, width, depth, score,
+                                         cutoff, temp_score);
         if (temp_score > cutoff) {
-	  if (depth + j < width)
-	    child[i]->top_score(text, top_node, scoremat, width, 
-				depth + j, temp_score, cutoff);
+          if (depth + j < width)
+            child[i]->top_score(text, top_node, scoremat, width,
+                                depth + j, temp_score, cutoff);
 
-	  else if (temp_score > cutoff) {
-	    *top_node = child[i];
-	    cutoff = temp_score;
-	  }
+          else if (temp_score > cutoff) {
+            *top_node = child[i];
+            cutoff = temp_score;
+          }
         }
       }
     }
-      
+
 }
 
 void
-GeneralizedSuffixNode::top_score(const char *text, GeneralizedSuffixNode **top_node, 
-		      float **scoremat, size_t width, size_t depth, 
-		      float score, float &cutoff,
-		      size_t min_seqid, size_t max_seqid) const {
+GeneralizedSuffixNode::top_score(const char *text, GeneralizedSuffixNode **top_node,
+                      float **scoremat, size_t width, size_t depth,
+                      float score, float &cutoff,
+                      size_t min_seqid, size_t max_seqid) const {
   if (child) {
     for (size_t i = 0; i < alphabet_size; i++)
       if (child[i]) {
-	float temp_score = 0;
-	size_t j = child[i]->MatchBranch(text, scoremat, width, depth, score, 
-					 cutoff, temp_score);
+        float temp_score = 0;
+        size_t j = child[i]->MatchBranch(text, scoremat, width, depth, score,
+                                         cutoff, temp_score);
 
         if (temp_score > cutoff && child[i]->HasSequence(min_seqid, max_seqid)) {
-	  if (depth + j < width) {
-	    child[i]->top_score(text, top_node, scoremat, width, depth + j,
-				temp_score, cutoff, min_seqid, max_seqid); }
+          if (depth + j < width) {
+            child[i]->top_score(text, top_node, scoremat, width, depth + j,
+                                temp_score, cutoff, min_seqid, max_seqid); }
 
-	  else if (temp_score > cutoff) {
-	    *top_node = child[i];
-	    cutoff = temp_score;
-	  }
-	}
+          else if (temp_score > cutoff) {
+            *top_node = child[i];
+            cutoff = temp_score;
+          }
+        }
       }
   }
-    
+
 }
 
 // GET SCORE GREATER THAN A THRESHOLD
 void
-GeneralizedSuffixNode::scores_greater(const char *text, vector<valnode> &V, float cutoff, 
-			   float **scoremat, size_t width, size_t depth, 
-			   float score) const {
+GeneralizedSuffixNode::scores_greater(const char *text, vector<valnode> &V, float cutoff,
+                           float **scoremat, size_t width, size_t depth,
+                           float score) const {
   if (child)
     for (size_t i = 0; i < alphabet_size; i++) {
       if (child[i]) {
-	float temp_score = 0;
-	size_t j = child[i]->MatchBranch(text, scoremat, width, depth, score, 
-					 cutoff, temp_score);
+        float temp_score = 0;
+        size_t j = child[i]->MatchBranch(text, scoremat, width, depth, score,
+                                         cutoff, temp_score);
         if (temp_score >= cutoff) {
-	  if (depth + j < width)
-	    child[i]->scores_greater(text, V, cutoff, scoremat,
-				     width, depth + j, temp_score);
-	  else V.push_back(valnode(temp_score, child[i]));
-	}
+          if (depth + j < width)
+            child[i]->scores_greater(text, V, cutoff, scoremat,
+                                     width, depth + j, temp_score);
+          else V.push_back(valnode(temp_score, child[i]));
+        }
       }
-      
+
     }
 }
 
 // Get scores greater than, specifying sequence
 void
-GeneralizedSuffixNode::scores_greater(const char *text, vector<valnode> &V, float cutoff, 
-			   float **scoremat, size_t width, size_t depth, 
-			   float score, size_t min_seqid, size_t max_seqid) const {
+GeneralizedSuffixNode::scores_greater(const char *text, vector<valnode> &V, float cutoff,
+                           float **scoremat, size_t width, size_t depth,
+                           float score, size_t min_seqid, size_t max_seqid) const {
   if (child)
     for (size_t i = 0; i < alphabet_size; i++)
       if (child[i]) {
-	float temp_score = 0;
-	size_t j = child[i]->MatchBranch(text, scoremat, width, depth, score, 
-					 cutoff, temp_score);
+        float temp_score = 0;
+        size_t j = child[i]->MatchBranch(text, scoremat, width, depth, score,
+                                         cutoff, temp_score);
         if (temp_score >= cutoff && child[i]->HasSequence(min_seqid, max_seqid)) {
-	  if (depth + j < width) 
-	    child[i]->scores_greater(text, V, cutoff, scoremat, width, 
-				     depth + j, temp_score, min_seqid, max_seqid);
-	  else V.push_back(valnode(temp_score, child[i]));
+          if (depth + j < width)
+            child[i]->scores_greater(text, V, cutoff, scoremat, width,
+                                     depth + j, temp_score, min_seqid, max_seqid);
+          else V.push_back(valnode(temp_score, child[i]));
         }
       }
-    
+
 }
 
 // TODO: record the size of a hit_queue in terms of the size of the nodes
 // GET TOP SCORES
-void 
-GeneralizedSuffixNode::top_scores(const char *text, hit_queue &PQ, size_t &pqsize, size_t n_top, 
-		       float **scoremat, size_t width, size_t depth, 
-		       float score, float &cutoff) const {
+void
+GeneralizedSuffixNode::top_scores(const char *text, hit_queue &PQ, size_t &pqsize, size_t n_top,
+                       float **scoremat, size_t width, size_t depth,
+                       float score, float &cutoff) const {
   if (child)
     for (size_t i = 0; i < alphabet_size; i++) {
       if (child[i]) {
-	float temp_score = 0;
-	size_t j = child[i]->MatchBranch(text, scoremat, width, depth, score, 
-					 cutoff, temp_score);
+        float temp_score = 0;
+        size_t j = child[i]->MatchBranch(text, scoremat, width, depth, score,
+                                         cutoff, temp_score);
         if (temp_score >= cutoff) {
-	  if (depth + j < width) {
-	    child[i]->top_scores(text, PQ, pqsize, n_top, scoremat, width,
-				 depth + j, temp_score, cutoff); }
-	  else {
-	    PQ.push(valnode(temp_score, child[i]));
-	    pqsize += child[i]->id.size();
-	    while (pqsize - PQ.top().second->id.size() >= n_top) {
-	      pqsize -= PQ.top().second->id.size();
-	      PQ.pop();
-	    }
-	    if (PQ.size() >= n_top)
-	      cutoff = PQ.top().first;
-	  }
-	}
+          if (depth + j < width) {
+            child[i]->top_scores(text, PQ, pqsize, n_top, scoremat, width,
+                                 depth + j, temp_score, cutoff); }
+          else {
+            PQ.push(valnode(temp_score, child[i]));
+            pqsize += child[i]->id.size();
+            while (pqsize - PQ.top().second->id.size() >= n_top) {
+              pqsize -= PQ.top().second->id.size();
+              PQ.pop();
+            }
+            if (PQ.size() >= n_top)
+              cutoff = PQ.top().first;
+          }
+        }
       }
-   } 
+   }
 }
 
 void
-GeneralizedSuffixNode::top_scores(const char *text, hit_queue &PQ, size_t &pqsize, size_t n_top, 
-		       float **scoremat, size_t width, size_t depth, float score,
-		       float &cutoff, size_t min_seqid, size_t max_seqid) const {
+GeneralizedSuffixNode::top_scores(const char *text, hit_queue &PQ, size_t &pqsize, size_t n_top,
+                       float **scoremat, size_t width, size_t depth, float score,
+                       float &cutoff, size_t min_seqid, size_t max_seqid) const {
   if (child)
     for (size_t i = 0; i < alphabet_size; i++)
       if (child[i]) {
-	float temp_score = 0;
-	size_t j = child[i]->MatchBranch(text, scoremat, width, depth, score, 
-					 cutoff, temp_score);
+        float temp_score = 0;
+        size_t j = child[i]->MatchBranch(text, scoremat, width, depth, score,
+                                         cutoff, temp_score);
         if (temp_score >= cutoff && child[i]->HasSequence(min_seqid, max_seqid)) {
-	  if (depth + j < width) {
-	    child[i]->top_scores(text, PQ, pqsize, n_top, scoremat, width, depth + j, 
-				 temp_score, cutoff, min_seqid, max_seqid); }
-	  else {
-	    PQ.push(valnode(temp_score, child[i]));
-	    pqsize += child[i]->id.size();
-	    while (pqsize - PQ.top().second->id.size() >= n_top) {
-	      pqsize -= PQ.top().second->id.size();
-	      PQ.pop();
-	    }
-	    if (PQ.size() >= n_top)
-	      cutoff = PQ.top().first;
-	  }
+          if (depth + j < width) {
+            child[i]->top_scores(text, PQ, pqsize, n_top, scoremat, width, depth + j,
+                                 temp_score, cutoff, min_seqid, max_seqid); }
+          else {
+            PQ.push(valnode(temp_score, child[i]));
+            pqsize += child[i]->id.size();
+            while (pqsize - PQ.top().second->id.size() >= n_top) {
+              pqsize -= PQ.top().second->id.size();
+              PQ.pop();
+            }
+            if (PQ.size() >= n_top)
+              cutoff = PQ.top().first;
+          }
         }
     }
-    
+
 }
 
 void
-GeneralizedSuffixNode::GetRepeatLocations(vector<size_t> &B, size_t threshold_number, 
-			       size_t min_depth, size_t depth) const {
+GeneralizedSuffixNode::GetRepeatLocations(vector<size_t> &B, size_t threshold_number,
+                               size_t min_depth, size_t depth) const {
   if (child)
     for (size_t i = 0; i < alphabet_size; i++)
-   
+
         if (child[i] && child[i]->id.size() >= threshold_number) {
-    
+
             if (depth + child[i]->edge_length() >= min_depth) {
                 B.insert(B.end(), child[i]->id.begin() + 1, child[i]->id.end()); }
             else {
                 child[i]->GetRepeatLocations(B, threshold_number, min_depth,
                                 depth + child[i]->edge_length()); }
-	}
+        }
 }
 
 void
 GeneralizedSuffixNode::get_kmer_counts(vector<pair<string, size_t> > &kmers, size_t kmer,
-			    size_t depth, const char *text, 
-			    string& current_prefix) const {
+                            size_t depth, const char *text,
+                            string& current_prefix) const {
   for (size_t i = 0; i < alphabet_size; i++) {
     if (child[i]) {
       const size_t local_start = child[i]->start;
       const size_t limit = min(kmer - depth, child[i]->end - local_start);
       for (size_t j = 0; j < limit; ++j)
-	current_prefix[depth + j] = text[local_start + j];
+        current_prefix[depth + j] = text[local_start + j];
       if (depth + child[i]->edge_length() >= kmer)
-	kmers.push_back(make_pair(current_prefix, child[i]->id.size()));
+        kmers.push_back(make_pair(current_prefix, child[i]->id.size()));
       else if (child[i]->has_children()) {
-	child[i]->get_kmer_counts(kmers, kmer, 
-				  depth + child[i]->end - local_start,
-				  text, current_prefix);
+        child[i]->get_kmer_counts(kmers, kmer,
+                                  depth + child[i]->end - local_start,
+                                  text, current_prefix);
       }
     }
   }
@@ -634,7 +634,7 @@ GeneralizedSuffixNode::get_count(const char *word, const char *text) const {
 
 void
 GeneralizedSuffixNode::get_locations(const char *word, const char *text,
-			  vector<size_t> &locations) const {
+                          vector<size_t> &locations) const {
   if (*word == '\0')
     copy(id.begin(), id.end(), back_inserter(locations));
   else {
@@ -701,8 +701,8 @@ GeneralizedSuffixTree::GeneralizedSuffixTree(const vector<string>& s, int d) {
 /******* FUNCTIONS DEALING WITH QUERIES *******/
 
 float**
-GeneralizedSuffixTree::PrepareScoringMatrix(const ScoringMatrix& matrix, 
-				 float &max_score) {
+GeneralizedSuffixTree::PrepareScoringMatrix(const ScoringMatrix& matrix,
+                                 float &max_score) {
   float **scoremat = new float *[matrix.get_width()];
   max_score = 0.0;
   for (size_t i = 0; i < matrix.get_width(); i++) {
@@ -726,42 +726,42 @@ GeneralizedSuffixTree::top_score(const ScoringMatrix& matrix, int seqid) const {
   float **scoremat = PrepareScoringMatrix(matrix, max_score);
   float r = -numeric_limits<float>::max();
   GeneralizedSuffixNode *top_node = 0;
-  if (seqid == -1) 
-    root->top_score(sequence.c_str(), &top_node, scoremat, 
-		    min(matrix.get_width(), depth), 0, max_score, r);
-  else root->top_score(sequence.c_str(), &top_node, scoremat,
-		       min(matrix.get_width(), depth), 0, max_score, r,
-		       offset[seqid], offset[seqid + 1]);
-  for (size_t i = 0; i < matrix.get_width(); i++) 
-    delete[] scoremat[i];
-  delete[] scoremat;
-  return r;
-}
-
-float
-GeneralizedSuffixTree::top_score(const ScoringMatrix& matrix, 
-		      size_t start, size_t end, int seqid) const {
-  float max_score = 0;
-  float **scoremat = PrepareScoringMatrix(matrix, max_score);
-  float r = -numeric_limits<float>::max();
-  GeneralizedSuffixNode *top_node = 0;
-  if (seqid == -1) 
+  if (seqid == -1)
     root->top_score(sequence.c_str(), &top_node, scoremat,
-		    min(matrix.get_width(), depth), 0, max_score, r,
-		    start, end);
+                    min(matrix.get_width(), depth), 0, max_score, r);
   else root->top_score(sequence.c_str(), &top_node, scoremat,
-		       min(matrix.get_width(), depth), 0, max_score, r,
-		       offset[seqid] + start, 
-		       offset[seqid] + end);
+                       min(matrix.get_width(), depth), 0, max_score, r,
+                       offset[seqid], offset[seqid + 1]);
   for (size_t i = 0; i < matrix.get_width(); i++)
     delete[] scoremat[i];
   delete[] scoremat;
   return r;
 }
 
-void 
-GeneralizedSuffixTree::top_scores(vector<float> &A, size_t n_top, 
-		       const ScoringMatrix& matrix, int seqid) const {
+float
+GeneralizedSuffixTree::top_score(const ScoringMatrix& matrix,
+                      size_t start, size_t end, int seqid) const {
+  float max_score = 0;
+  float **scoremat = PrepareScoringMatrix(matrix, max_score);
+  float r = -numeric_limits<float>::max();
+  GeneralizedSuffixNode *top_node = 0;
+  if (seqid == -1)
+    root->top_score(sequence.c_str(), &top_node, scoremat,
+                    min(matrix.get_width(), depth), 0, max_score, r,
+                    start, end);
+  else root->top_score(sequence.c_str(), &top_node, scoremat,
+                       min(matrix.get_width(), depth), 0, max_score, r,
+                       offset[seqid] + start,
+                       offset[seqid] + end);
+  for (size_t i = 0; i < matrix.get_width(); i++)
+    delete[] scoremat[i];
+  delete[] scoremat;
+  return r;
+}
+
+void
+GeneralizedSuffixTree::top_scores(vector<float> &A, size_t n_top,
+                       const ScoringMatrix& matrix, int seqid) const {
 
   // TODO: define an exception for this
   if (n_top == 0) return;
@@ -771,14 +771,14 @@ GeneralizedSuffixTree::top_scores(vector<float> &A, size_t n_top,
   float cutoff = -numeric_limits<float>::max();
   hit_queue PQ;
   size_t pqsize = 0;
-  if (seqid == -1) 
-    root->top_scores(sequence.c_str(), PQ, pqsize, n_top, scoremat, 
-		     min(matrix.get_width(), depth), 0, max_score, cutoff);
-  else 
+  if (seqid == -1)
     root->top_scores(sequence.c_str(), PQ, pqsize, n_top, scoremat,
-		     min(matrix.get_width(), depth), 0, max_score, cutoff,
-		     offset[seqid], offset[seqid + 1]);
-  for (size_t i = 0; i < matrix.get_width(); i++) 
+                     min(matrix.get_width(), depth), 0, max_score, cutoff);
+  else
+    root->top_scores(sequence.c_str(), PQ, pqsize, n_top, scoremat,
+                     min(matrix.get_width(), depth), 0, max_score, cutoff,
+                     offset[seqid], offset[seqid + 1]);
+  for (size_t i = 0; i < matrix.get_width(); i++)
     delete[] scoremat[i];
   delete[] scoremat;
   // TODO: make sure this is sorted correctly before popping off
@@ -786,7 +786,7 @@ GeneralizedSuffixTree::top_scores(vector<float> &A, size_t n_top,
     for (size_t i = 0; i < PQ.top().second->id.size(); ++i) {
       pair<size_t, size_t> ind_off(index2seq_offset(PQ.top().second->id[i]));
       if (seqid == -1 || static_cast<int>(ind_off.first) == seqid)
-	A.push_back(PQ.top().first);
+        A.push_back(PQ.top().first);
     }
     PQ.pop();
   }
@@ -795,25 +795,25 @@ GeneralizedSuffixTree::top_scores(vector<float> &A, size_t n_top,
 }
 
 void
-GeneralizedSuffixTree::scores_greater(vector<float> &V, float threshold, 
-			   const ScoringMatrix& matrix, int seqid) const {
+GeneralizedSuffixTree::scores_greater(vector<float> &V, float threshold,
+                           const ScoringMatrix& matrix, int seqid) const {
   float max_score = 0;
   float **scoremat = PrepareScoringMatrix(matrix, max_score);
   vector<valnode> B;
-  if (seqid == -1) 
-    root->scores_greater(sequence.c_str(), B, threshold, scoremat, 
-			 min(matrix.get_width(), depth), 0, max_score);
-  else root->scores_greater(sequence.c_str(), B, threshold, scoremat, 
-			    min(matrix.get_width(), depth), 0, max_score, 
-			    offset[seqid], offset[seqid + 1]);
-  for (size_t i = 0; i < matrix.get_width(); i++) 
+  if (seqid == -1)
+    root->scores_greater(sequence.c_str(), B, threshold, scoremat,
+                         min(matrix.get_width(), depth), 0, max_score);
+  else root->scores_greater(sequence.c_str(), B, threshold, scoremat,
+                            min(matrix.get_width(), depth), 0, max_score,
+                            offset[seqid], offset[seqid + 1]);
+  for (size_t i = 0; i < matrix.get_width(); i++)
     delete[] scoremat[i];
   delete[] scoremat;
   for (vector<valnode>::iterator i = B.begin(); i != B.end(); ++i)
     for (size_t j = 0; j < i->second->id.size(); ++j) {
       pair<size_t, size_t> ind_off(index2seq_offset(i->second->id[j]));
       if (seqid == -1 || static_cast<int>(ind_off.first) == seqid)
-	V.push_back(i->first);
+        V.push_back(i->first);
     }
 }
 
@@ -823,60 +823,60 @@ GeneralizedSuffixTree::top_score_index(const ScoringMatrix& matrix, int seqid) c
   float **scoremat = PrepareScoringMatrix(matrix, max_score);
   float cutoff = -numeric_limits<float>::max();
   GeneralizedSuffixNode *top_node = 0;
-  if (seqid == -1) 
-    root->top_score(sequence.c_str(), &top_node, scoremat, 
-		    matrix.get_width(), 0, max_score, cutoff);
-  else 
-    root->top_score(sequence.c_str(), &top_node, scoremat, 
-		    matrix.get_width(), 0, max_score, cutoff,
-		    offset[seqid], offset[seqid + 1]);
-  for (size_t i = 0; i < matrix.get_width(); i++) 
-    delete[] scoremat[i];
-  delete[] scoremat;
-  return seq_pos_score(index2seq_offset(top_node->id.front()), cutoff);
-}
-
-seq_pos_score
-GeneralizedSuffixTree::top_score_index(const ScoringMatrix& matrix, 
-			    size_t lower, size_t upper, int seqid) const {
-  float max_score = 0;
-  float **scoremat = PrepareScoringMatrix(matrix, max_score);
-  float cutoff = -numeric_limits<float>::max();
-  GeneralizedSuffixNode *top_node = 0;
-  if (seqid == -1) 
-    root->top_score(sequence.c_str(), &top_node, scoremat, 
-		    matrix.get_width(), 0, max_score, cutoff,
-		    lower, upper);
-  else 
-    root->top_score(sequence.c_str(), &top_node, scoremat, 
-		    matrix.get_width(), 0, max_score, cutoff,
-		    offset[seqid] + lower, offset[seqid] + upper);
+  if (seqid == -1)
+    root->top_score(sequence.c_str(), &top_node, scoremat,
+                    matrix.get_width(), 0, max_score, cutoff);
+  else
+    root->top_score(sequence.c_str(), &top_node, scoremat,
+                    matrix.get_width(), 0, max_score, cutoff,
+                    offset[seqid], offset[seqid + 1]);
   for (size_t i = 0; i < matrix.get_width(); i++)
     delete[] scoremat[i];
   delete[] scoremat;
   return seq_pos_score(index2seq_offset(top_node->id.front()), cutoff);
 }
 
-void 
-GeneralizedSuffixTree::top_scores_indices(vector<seq_pos_score> &A, size_t n_top, 
-			       const ScoringMatrix& matrix, 
-			       int seqid) const {
-  
+seq_pos_score
+GeneralizedSuffixTree::top_score_index(const ScoringMatrix& matrix,
+                            size_t lower, size_t upper, int seqid) const {
+  float max_score = 0;
+  float **scoremat = PrepareScoringMatrix(matrix, max_score);
+  float cutoff = -numeric_limits<float>::max();
+  GeneralizedSuffixNode *top_node = 0;
+  if (seqid == -1)
+    root->top_score(sequence.c_str(), &top_node, scoremat,
+                    matrix.get_width(), 0, max_score, cutoff,
+                    lower, upper);
+  else
+    root->top_score(sequence.c_str(), &top_node, scoremat,
+                    matrix.get_width(), 0, max_score, cutoff,
+                    offset[seqid] + lower, offset[seqid] + upper);
+  for (size_t i = 0; i < matrix.get_width(); i++)
+    delete[] scoremat[i];
+  delete[] scoremat;
+  return seq_pos_score(index2seq_offset(top_node->id.front()), cutoff);
+}
+
+void
+GeneralizedSuffixTree::top_scores_indices(vector<seq_pos_score> &A, size_t n_top,
+                               const ScoringMatrix& matrix,
+                               int seqid) const {
+
   // TODO: define an exception for this
   if (n_top == 0) return;
-  
+
   float max_score = 0;
   float **scoremat = PrepareScoringMatrix(matrix, max_score);
   float cutoff = -numeric_limits<float>::max();
   hit_queue PQ;
   size_t pqsize = 0;
-  if (seqid == -1) 
+  if (seqid == -1)
     root->top_scores(sequence.c_str(), PQ, pqsize, n_top, scoremat,
-		     matrix.get_width(), 0, max_score, cutoff);
+                     matrix.get_width(), 0, max_score, cutoff);
   else
     root->top_scores(sequence.c_str(), PQ, pqsize, n_top, scoremat,
-		     matrix.get_width(), 0, max_score, cutoff,
-		     offset[seqid], offset[seqid + 1]);
+                     matrix.get_width(), 0, max_score, cutoff,
+                     offset[seqid], offset[seqid + 1]);
   for (size_t i = 0; i < matrix.get_width(); i++)
     delete[] scoremat[i];
   delete[] scoremat;
@@ -885,7 +885,7 @@ GeneralizedSuffixTree::top_scores_indices(vector<seq_pos_score> &A, size_t n_top
     for (size_t i = 0; i < PQ.top().second->id.size(); ++i) {
       pair<size_t, size_t> ind_off(index2seq_offset(PQ.top().second->id[i]));
       if (seqid == -1 || static_cast<int>(ind_off.first) == seqid)
-	A.push_back(seq_pos_score(ind_off, PQ.top().first));
+        A.push_back(seq_pos_score(ind_off, PQ.top().first));
     }
     PQ.pop();
   }
@@ -894,102 +894,102 @@ GeneralizedSuffixTree::top_scores_indices(vector<seq_pos_score> &A, size_t n_top
 }
 
 void
-GeneralizedSuffixTree::scores_greater_indices(vector<seq_pos_score> &A, 
-				   float threshold,
-				   const ScoringMatrix& matrix, 
-				   int seqid) const {
+GeneralizedSuffixTree::scores_greater_indices(vector<seq_pos_score> &A,
+                                   float threshold,
+                                   const ScoringMatrix& matrix,
+                                   int seqid) const {
   float max_score = 0;
   float **scoremat = PrepareScoringMatrix(matrix, max_score);
   vector<valnode> nodes_above_threshold;
-  if (seqid == -1) 
-    root->scores_greater(sequence.c_str(), nodes_above_threshold, 
-			 threshold, scoremat, matrix.get_width(), 0, max_score);
-  else 
+  if (seqid == -1)
     root->scores_greater(sequence.c_str(), nodes_above_threshold,
-			 threshold, scoremat, matrix.get_width(), 0, max_score,
-			 offset[seqid], offset[seqid + 1]);
-  for (size_t i = 0; i < matrix.get_width(); i++) 
+                         threshold, scoremat, matrix.get_width(), 0, max_score);
+  else
+    root->scores_greater(sequence.c_str(), nodes_above_threshold,
+                         threshold, scoremat, matrix.get_width(), 0, max_score,
+                         offset[seqid], offset[seqid + 1]);
+  for (size_t i = 0; i < matrix.get_width(); i++)
     delete[] scoremat[i];
   delete[] scoremat;
   // TODO: make sure nodes_above_threshold is sorted properly
   sort(nodes_above_threshold.begin(), nodes_above_threshold.end());
-  for (vector<valnode>::iterator i = nodes_above_threshold.begin(); 
+  for (vector<valnode>::iterator i = nodes_above_threshold.begin();
        i != nodes_above_threshold.end(); ++i)
     for (size_t j = 0; j < i->second->id.size(); ++j) {
       pair<size_t, size_t> ind_off(index2seq_offset(i->second->id[j]));
       if (seqid == -1 || static_cast<int>(ind_off.first) == seqid)
-	A.push_back(seq_pos_score(ind_off, i->first));
+        A.push_back(seq_pos_score(ind_off, i->first));
     }
 }
 
 void
 GeneralizedSuffixTree::window_scores_greater_indices(std::vector<seq_pos_score> &A, float threshold,
-                                          const ScoringMatrix& matrix, 
-					  size_t start, size_t stop, size_t seqid) const{
+                                          const ScoringMatrix& matrix,
+                                          size_t start, size_t stop, size_t seqid) const{
   float max_score = 0;
   float **scoremat = PrepareScoringMatrix(matrix, max_score);
   vector<valnode> B;
   root->scores_greater(sequence.c_str(), B, threshold, scoremat,
-		       matrix.get_width(), 0, max_score,
-		       start, stop);
+                       matrix.get_width(), 0, max_score,
+                       start, stop);
   for (size_t i = 0; i < matrix.get_width(); ++i)
     delete[] scoremat[i];
   delete[] scoremat;
-  
+
   sort(B.begin(), B.end());
   for (vector<valnode>::iterator i = B.begin(); i != B.end(); ++i){
     for (size_t j = 0; j < i->second->id.size(); ++j){
       // check to make sure in window
       if (i->second->id[j] > start && i->second->id[j] < stop)
-	A.push_back(seq_pos_score(pair<size_t, size_t>(seqid, i->second->id[j]), i->first));
+        A.push_back(seq_pos_score(pair<size_t, size_t>(seqid, i->second->id[j]), i->first));
     }
   }
 }
 
 bool
 GeneralizedSuffixTree::no_overlaps(vector<pair<size_t, size_t> >& sites,
-			size_t p, size_t w) {
+                        size_t p, size_t w) {
   for (size_t c = 0; c < sites.size(); ++c)
-    if ((p >= sites[c].first && p <= sites[c].second) || 
-	(p + w >=sites[c].first && p + w <= sites[c].second) ||
-	(p <= sites[c].first && p+w >= sites[c].second))
+    if ((p >= sites[c].first && p <= sites[c].second) ||
+        (p + w >=sites[c].first && p + w <= sites[c].second) ||
+        (p <= sites[c].first && p+w >= sites[c].second))
       return false;
   return true;
 }
 
 void
-GeneralizedSuffixTree::window_scores_greater_indices(std::vector<seq_pos_score> &A, 
-					  float threshold,
+GeneralizedSuffixTree::window_scores_greater_indices(std::vector<seq_pos_score> &A,
+                                          float threshold,
                                           const ScoringMatrix& matrix,
-					  size_t start, size_t stop, 
-					  size_t seqid,
-					  vector<pair<size_t, size_t> > &recorded_sites) const{
+                                          size_t start, size_t stop,
+                                          size_t seqid,
+                                          vector<pair<size_t, size_t> > &recorded_sites) const{
   float max_score = 0;
   float **scoremat = PrepareScoringMatrix(matrix, max_score);
   vector<valnode> B;
   root->scores_greater(sequence.c_str(), B, threshold, scoremat,
-		       matrix.get_width(), 0, max_score, start, stop);
+                       matrix.get_width(), 0, max_score, start, stop);
   for (size_t i = 0; i < matrix.get_width(); ++i)
     delete[] scoremat[i];
   delete[] scoremat;
-  
+
   sort(B.begin(), B.end());
   for (vector<valnode>::iterator i = B.begin(); i != B.end(); ++i){
     for (size_t j = 0; j < i->second->id.size(); ++j){
       // check to make sure doesn't overlap sites in recorded_sites
       if (no_overlaps(recorded_sites, i->second->id[j], matrix.get_width())){
-	// check to make sure in window
-	if (i->second->id[j] > start && i->second->id[j] < stop)
-	  A.push_back(seq_pos_score(make_pair(seqid, i->second->id[j]), i->first));
+        // check to make sure in window
+        if (i->second->id[j] > start && i->second->id[j] < stop)
+          A.push_back(seq_pos_score(make_pair(seqid, i->second->id[j]), i->first));
       }
     }
   }
 }
 
-void 
-GeneralizedSuffixTree::GetRepeatLocations(vector<pair<size_t, size_t> > &A, 
-			       size_t threshold_number, 
-			       size_t min_width) const {
+void
+GeneralizedSuffixTree::GetRepeatLocations(vector<pair<size_t, size_t> > &A,
+                               size_t threshold_number,
+                               size_t min_width) const {
   vector<size_t> B;
   root->GetRepeatLocations(B, threshold_number, min_width, 0);
   sort(B.begin(), B.end());
@@ -1004,21 +1004,22 @@ GeneralizedSuffixTree::tostring() const {
 
 void
 GeneralizedSuffixTree::get_kmer_counts(vector<pair<string, size_t> > &kmers,
-			    size_t kmer) const {
+                            size_t kmer) const {
   string s(kmer, 'N');
   root->get_kmer_counts(kmers, kmer, 0, sequence.c_str(), s);
 }
+
 
 void
 GeneralizedSuffixTree::get_locations(string w, vector<pair<size_t, size_t> > &L) const {
   vector<size_t> locations;
   root->get_locations(w.c_str(), sequence.c_str(), locations);
   transform(locations.begin(), locations.end(), back_inserter(L),
-	    bind1st(mem_fun(&GeneralizedSuffixTree::index2seq_offset), this));
+            [&](const size_t x) {return index2seq_offset(x);});
 }
 // TO DO: CHECK FOR MATRIX WIDTH
 
-size_t 
+size_t
 GeneralizedSuffixTree::get_count(std::string w) const {
   return root->get_count(w.c_str(), sequence.c_str());
 }

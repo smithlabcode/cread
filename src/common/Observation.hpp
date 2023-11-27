@@ -38,7 +38,7 @@ public:
 
 class ObservationFileException : public CREADException{
 public:
-  ObservationFileException(std::string m = std::string(), int l = -1) : 
+  ObservationFileException(std::string m = std::string(), int l = -1) :
     CREADException(m), line_number(l) {}
   int GetLineNumber() const {return line_number;}
 private:
@@ -54,7 +54,7 @@ private:
 template <class T = float, class U = bool> class Observation {
 
   const static size_t obs_line_size = 10000000;
-  
+
   std::string name;
   std::vector<T> predictors;
   U outcome;
@@ -62,11 +62,11 @@ template <class T = float, class U = bool> class Observation {
 
 public:
   /** Constructor with parameters to initialize each instance variable (no defaults) */
-  Observation(std::string nm, std::vector<T>& p, U o, float w = 1) : 
+  Observation(std::string nm, std::vector<T>& p, U o, float w = 1) :
     name(nm), predictors(p), outcome(o), weight(w) {
     std::replace(name.begin(), name.end(), '\t', ' ');
   }
-  Observation(std::string nm, U o, float w = 1) : 
+  Observation(std::string nm, U o, float w = 1) :
     name(nm), predictors(std::vector<T>()), outcome(o), weight(w) {
     std::replace(name.begin(), name.end(), '\t', ' ');
   }
@@ -77,7 +77,7 @@ public:
   const T& operator[](int i) const {return predictors[i];}
   U get_outcome() const {return outcome;}
   float get_weight() const {return weight;}
-  
+
   // MUATATORS
   void set_weight(T t) {weight = t;}
   void set_outcome(U u) {outcome = u;}
@@ -92,25 +92,25 @@ public:
   static float accum_pos_weight(float w, const Observation<T, U>& o) {
     return w + ((o.get_outcome() > 0) ? o.get_weight() : 0);
   }
-  
+
   // TODO: what is required here for in-class definition vs out-of-class
   // definition for friend functions w.r.t. template parameters?
-  template <class TT, class UU> 
+  template <class TT, class UU>
   friend std::ostream& operator<<(std::ostream &s, const Observation<TT, UU> &o) {
     s << o.name << "\t";
-    copy(o.predictors.begin(), o.predictors.end(), 
-	 std::ostream_iterator<float>(s, "\t"));
+    copy(o.predictors.begin(), o.predictors.end(),
+         std::ostream_iterator<float>(s, "\t"));
     return s << "\t" << o.outcome << "\t" << o.weight;
   }
   static void
   test_consistency(std::vector<Observation<T, U> >& obs) {
-    for (typename std::vector<Observation<T, U> >::iterator i = obs.begin(); 
-	 i != obs.end(); ++i)
-      if (i->size() != obs.front().size()) 
-	throw InconsistentObservations();
+    for (typename std::vector<Observation<T, U> >::iterator i = obs.begin();
+         i != obs.end(); ++i)
+      if (i->size() != obs.front().size())
+        throw InconsistentObservations();
   }
-  static void read_observations(std::string, std::vector<std::string>&, 
-				std::vector<Observation<T, U> >&);
+  static void read_observations(std::string, std::vector<std::string>&,
+                                std::vector<Observation<T, U> >&);
 
   static void shuffle(std::vector<Observation<T, U> >& obs) {
     srand(time(0) + getpid());
@@ -127,9 +127,9 @@ template <class T> T froma(std::string s) {
 
 template<class T, class U> void
 Observation<T, U>::read_observations(std::string filename, std::vector<std::string> &features,
-				     std::vector<Observation<T, U> >& obs) {
+                                     std::vector<Observation<T, U> >& obs) {
   std::ifstream in(filename.c_str());
-  if (!in) { 
+  if (!in) {
     std::string message = std::string("could not open observation file: ") + filename;
     throw ObservationFileException(message);
   }
@@ -140,15 +140,15 @@ Observation<T, U>::read_observations(std::string filename, std::vector<std::stri
   while (in.peek() == '#') {
     in.getline(buffer, obs_line_size);
     ++line_count;
-  }  
+  }
 
   // first non-comment line must be feature names
   features.clear();
   in.getline(buffer, obs_line_size);
   features = cread::split(buffer, " \t");
-  
+
   size_t n_features = features.size();
-  
+
   obs.clear();
   std::vector<std::string> v;
   while (!in.eof()) {
@@ -156,19 +156,19 @@ Observation<T, U>::read_observations(std::string filename, std::vector<std::stri
     ++line_count;
     std::vector<std::string> v = cread::split(buffer, "\t");
     if (v.size() < n_features + 2)
-      throw ObservationFileException("observation file: bad observation line", 
-				     line_count);
+      throw ObservationFileException("observation file: bad observation line",
+                                     line_count);
     U outcome = froma<U>(v[n_features + 1]);
     std::vector<T> pred;
     float weight = 1;
     if (v.size() == n_features + 3) {
       transform(v.begin() + 1, v.end() - 2,
-		back_inserter(pred), std::ptr_fun(&froma<T>));
+                back_inserter(pred), std::function(&froma<T>));
       weight = froma<float>(v.back());
     }
     else
       transform(v.begin() + 1, v.end() - 1,
-		back_inserter(pred), std::ptr_fun(&froma<T>));
+                back_inserter(pred), std::function(&froma<T>));
     obs.push_back(Observation<T, U>(v.front(), pred, outcome, weight));
     // TODO: figure out why I was using this peek() function:
     in.peek();
@@ -179,9 +179,10 @@ Observation<T, U>::read_observations(std::string filename, std::vector<std::stri
  * Function object used when sorting a sequence of observations based
  * on values of a specific predictor.
  */
-template <class T, class U> 
-class ObservationOrder : public std::binary_function<const Observation<T, U> &, 
-						const Observation<T, U> &, bool> {
+template <class T, class U>
+class ObservationOrder  {
+    // : public std::binary_function<const Observation<T, U> &,
+    //                            const Observation<T, U> &, bool> {
   size_t key;
 public:
   explicit ObservationOrder(size_t k) : key(k) {}
@@ -196,7 +197,8 @@ public:
  * less than or equal to a specific value.
  */
 template <class T, class U>
-class ObservationLessEqual : public std::unary_function<const Observation<T, U>&, bool> {
+class ObservationLessEqual {
+     // : public std::unary_function<const Observation<T, U>&, bool> {
   size_t key;
   T value;
 public:
@@ -210,8 +212,9 @@ public:
  * Same as ObservationLessEqual, but provides the greater than or
  * equal to relation.
  */
-template <class T, class U> 
-class ObservationGreater : public std::unary_function<const Observation<T, U>&, bool> {
+template <class T, class U>
+class ObservationGreater {
+  // : public std::unary_function<const Observation<T, U>&, bool> {
   size_t key;
   T value;
 public:

@@ -41,10 +41,10 @@ using std::cerr;
 using std::endl;
 using std::numeric_limits;
 using std::ofstream;
-using std::ptr_fun;
+using std::function;
 using std::ostream;
 using std::ostream_iterator;
-using std::mem_fun_ref;
+using std::mem_fn;
 using std::pair;
 using std::make_pair;
 using std::copy;
@@ -202,7 +202,7 @@ QuerySequenceNoPreprocessing(const string sequence, const vector<ScoringMatrix>&
       }
     }
     sort(occ[i].begin(), occ[i].end(), greater<Hit>());
-    sort(occ[i].begin(), occ[i].end(), ptr_fun(&Hit::seq_pos_order));
+    sort(occ[i].begin(), occ[i].end(), function(&Hit::seq_pos_order));
   }
 }
 
@@ -249,7 +249,7 @@ QuerySequenceNoPreprocessing(const string& sequence,
       hq.pop();
     }
     sort(occ[i].begin(), occ[i].end(), greater<Hit>());
-    sort(occ[i].begin(), occ[i].end(), ptr_fun(&Hit::seq_pos_order));
+    sort(occ[i].begin(), occ[i].end(), function(&Hit::seq_pos_order));
   }
 }
 
@@ -314,7 +314,7 @@ QuerySequenceSetNoPreprocessingTies(const vector<string>& sequences,
     }
   for (size_t i = 0; i < sm.size(); ++i) {
     sort(occ[i].begin(), occ[i].end(), greater<Hit>());
-    sort(occ[i].begin(), occ[i].end(), ptr_fun(&Hit::seq_pos_order));
+    sort(occ[i].begin(), occ[i].end(), function(&Hit::seq_pos_order));
   }
 }
 
@@ -360,7 +360,7 @@ QuerySequenceNoPreprocessingTies(const string& sequence,
       }
     }
     sort(occ[i].begin(), occ[i].end(), greater<Hit>());
-    sort(occ[i].begin(), occ[i].end(), ptr_fun(&Hit::seq_pos_order));
+    sort(occ[i].begin(), occ[i].end(), function(&Hit::seq_pos_order));
   }
 }
 
@@ -411,7 +411,7 @@ QuerySequenceSetNoPreprocessing(const vector<string>& sequences,
       hq[i].pop();
     }
     sort(occ[i].begin(), occ[i].end(), greater<Hit>());
-    sort(occ[i].begin(), occ[i].end(), ptr_fun(&Hit::seq_pos_order));
+    sort(occ[i].begin(), occ[i].end(), function(&Hit::seq_pos_order));
   }
 }
 
@@ -437,7 +437,7 @@ QuerySequenceByThreshold(const string& sequence,
           tree.scores_greater_indices(smrc[i], threshold[i], temp_hits);
           AddDirectionAndSequence(temp_hits, hits, 'n', sn);
         }
-        sort(hits.begin(), hits.end(), ptr_fun(&Hit::seq_pos_order));
+        sort(hits.begin(), hits.end(), function(&Hit::seq_pos_order));
         copy(hits.begin(), hits.end(), back_inserter(occ[i]));
       }
     }
@@ -492,12 +492,12 @@ QuerySequenceByCount(const string& sequence,
             AddDirectionAndSequence(temp_hits, hits, 'n', sn);
           }
           sort(hits.begin(), hits.end(), greater<Hit>());
-          sort(hits.begin(), hits.end(), ptr_fun(&Hit::seq_pos_order));
+          sort(hits.begin(), hits.end(), function(&Hit::seq_pos_order));
           copy(hits.begin(), hits.end(), back_inserter(occ[i]));
         }
         else {
           sort(hits.begin(), hits.begin() + min(n_top, hits.size()),
-               ptr_fun(&Hit::seq_pos_order));
+               function(&Hit::seq_pos_order));
           copy(hits.begin(), hits.begin() + min(n_top, hits.size()),
                back_inserter(occ[i]));
         }
@@ -547,12 +547,12 @@ QuerySequenceSetByCount(const vector<string>& sequences,
             AddDirection(temp_hits, hits, 'n');
           }
           sort(hits.begin(), hits.end(), greater<Hit>());
-          sort(hits.begin(), hits.end(), ptr_fun(&Hit::seq_pos_order));
+          sort(hits.begin(), hits.end(), function(&Hit::seq_pos_order));
           copy(hits.begin(), hits.end(), back_inserter(occ[i]));
         }
         else {
           sort(hits.begin(), hits.begin() + min(n_top, hits.size()),
-               ptr_fun(&Hit::seq_pos_order));
+               function(&Hit::seq_pos_order));
           copy(hits.begin(), hits.begin() + min(n_top, hits.size()),
                back_inserter(occ[i]));
         }
@@ -904,7 +904,7 @@ remove_duplicate_sites(const string progress_prefix,
            << static_cast<size_t>((100.0*i)/sites.size()) << "%";
     vector<MotifSite*> site_ptrs(sites[i].size());
     transform(sites[i].begin(), sites[i].end(),
-              site_ptrs.begin(), ptr_fun(get_ptr));
+              site_ptrs.begin(), function(get_ptr));
     sort(site_ptrs.begin(), site_ptrs.end(), MotifSitePtrGreaterScore());
     sort(site_ptrs.begin(), site_ptrs.end(), MotifSitePtrLess());
     vector<MotifSite*>::iterator j = unique(site_ptrs.begin(),
@@ -913,7 +913,7 @@ remove_duplicate_sites(const string progress_prefix,
     site_ptrs.erase(j, site_ptrs.end());
     vector<MotifSite> site_objs;
     transform(site_ptrs.begin(), site_ptrs.end(),
-              back_inserter(site_objs), ptr_fun(get_obj));
+              back_inserter(site_objs), function(get_obj));
     sites[i].swap(site_objs);
   }
   if (VERBOSE)
@@ -1093,12 +1093,12 @@ int main(int argc, const char **argv) {
     // extract the matrix from each motif
     vector<Matrix> matrices;
     transform(motifs.begin(), motifs.end(), back_inserter(matrices),
-              mem_fun_ref(&Motif::get_matrix));
+              mem_fn(&Motif::get_matrix));
 
     // get a vector of motif widths
     vector<size_t> full_motif_widths;
     transform(motifs.begin(), motifs.end(), back_inserter(full_motif_widths),
-              mem_fun_ref(&Motif::get_width));
+              mem_fn(&Motif::get_width));
 
     // make vector of scoring matrices (and their reverse complements
     // if needed).
@@ -1153,13 +1153,13 @@ int main(int argc, const char **argv) {
       // only thing more annoying than having to do this would be
       // taking the time to figure out the proper way to fix it
       if (!threshold.empty())
-        transform(threshold.begin(), threshold.end(), threshold.begin(),
-                  bind2nd(std::minus<float>(), threshold_tolerance));
+        transform(cbegin(threshold), cend(threshold), begin(threshold),
+                  [&](const float x) {return x - threshold_tolerance;});
     }
 
     // erase all sites in the motifs -- we only want the new ones
     // and memory will grow, so lets delete them now instead of later
-    for_each(motifs.begin(), motifs.end(), mem_fun_ref(&Motif::clear_sites));
+    for_each(motifs.begin(), motifs.end(), mem_fn(&Motif::clear_sites));
 
     // The 'sites' vector is where the new sites will be stored as
     // they are obtained. It would be better not to have to store full

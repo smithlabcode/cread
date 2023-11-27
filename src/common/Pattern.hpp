@@ -32,7 +32,7 @@
 /*!
    \class Pattern
    \brief This base class provides a standard interface, exception handling
-	  and functionality that is common to patterns.
+          and functionality that is common to patterns.
  */
 class Pattern {
 public:
@@ -50,7 +50,7 @@ public:
   Pattern& operator=(const Pattern &);
   //! Empty destructor
   virtual ~Pattern() {}
-  
+
   // ACCESSORS
   //! Returns pattern accession
   std::string get_accession() const {return accession;}
@@ -65,7 +65,7 @@ public:
     \return Attribute value or empty string if the attribute is not set.
    */
   std::string get_attribute(std::string s) const;
-  
+
   //! Returns the pattern basis
   std::string get_basis() const {return basis;}
   //! Returns the binding factors
@@ -78,14 +78,14 @@ public:
   std::string get_factor_names() const {return factor_names;}
   //! Returns the pattern organization
   std::string get_organization() const {return organization;}
-  
+
   //! Returns the entire pattern attributes map
   std::map<std::string, std::string> get_attributes() const {
     return attributes;
   }
   //! String representation for the pattern
   virtual std::string tostring() const;
-  
+
   // MUTATORS
   //! Sets the pattern accession
   void set_accession(std::string s) {accession = s;}
@@ -93,7 +93,7 @@ public:
   void set_comment(std::string s) {comment = s;}
   //! Sets the pattern identifier
   void set_identifier(std::string s) {identifier = s;}
-  
+
   /*!
     \brief Sets the attribute key to value.
     \param[in] key Attribute name.
@@ -107,18 +107,18 @@ public:
   static std::string extract_type(std::vector<std::string>&);
   /*!
     \brief Split a vector of strings containing multiple patterns into
-	   a vector of string vectors such that each string vector contains
-	   exactly one pattern.
+           a vector of string vectors such that each string vector contains
+           exactly one pattern.
     \param[in] in
-	A vector of strings containing multiple patterns.
+        A vector of strings containing multiple patterns.
     \param[out] out
-	A vector of string vectors such that each string vector contains
-	data on one pattern.
+        A vector of string vectors such that each string vector contains
+        data on one pattern.
   */
-  static void separate_pattern_lines(std::vector<std::string> & in, 
-				     std::vector<std::vector<std::string> >
-								      & out);
-  
+  static void separate_pattern_lines(std::vector<std::string> & in,
+                                     std::vector<std::vector<std::string> >
+                                                                      & out);
+
   //! Print the pattern
   friend std::ostream& operator<<(std::ostream& s, const Pattern &p) {
     return s << p.tostring();
@@ -156,9 +156,9 @@ protected:
     \brief Parse the input string to identify an attribute and its value.
     \param[in] s String containing an attribute and its value.
     \return Pair of strings, where first contains the attribute key
-	    and the second contains its value.
+            and the second contains its value.
     \warning The input string must contain an attribute and its value;
-	     value is empty string otherwise.
+             value is empty string otherwise.
    */
   static std::pair<std::string, std::string> parse_attribute_line(std::string s);
   //! Returns true if the line starts with the label type
@@ -186,7 +186,7 @@ protected:
       to print its sites.
    */
   virtual void format_sites(std::ostream& os) const = 0;
-  
+
   //! If pattern accession exists, print it into ostream os
   void format_accession(std::ostream& os) const;
   //! If pattern type exists, print it into ostream os
@@ -216,15 +216,15 @@ protected:
   //! This container class needs access to type information for error checking
   friend class PatternFactory;
 
-  /*! 
+  /*!
     \brief Retrieve lines from a file.
     \param[in] file_name File name.
     \param[out] pattern_lines A Vector of strings set to the line in file_name.
     \warning Line maximum length is pattern_line_size.
    */
-  static void ReadPatternLines(std::string file_name, 
-			       std::vector<std::vector<std::string> >&
-							pattern_lines);
+  static void ReadPatternLines(std::string file_name,
+                               std::vector<std::vector<std::string> >&
+                                                        pattern_lines);
 
   //! Version is a special non-type information
   static const char *version_line;
@@ -242,7 +242,7 @@ class BadKeyException : public CREADException {
   std::string accession;
 public:
   /// The constructor takes an attribute and a pattern name
-  BadKeyException(std::string k, std::string a) throw() : 
+  BadKeyException(std::string k, std::string a) throw() :
      CREADException(), key(k), accession(a) {}
   const char * what() const throw() {
     std::ostringstream s;
@@ -258,7 +258,7 @@ public:
   \class PatternOrder
   \brief Provides operators to compare patters.
  */
-class PatternOrder : public std::binary_function<Pattern*, Pattern*, bool> {
+class PatternOrder { // : public std::function<Pattern*, Pattern*, bool> {
 protected:
   //! The attribute used for comparison
   std::string key;
@@ -268,7 +268,7 @@ protected:
   bool numeric;
 public:
   //! The initialization constructor
-  explicit PatternOrder(std::string k, bool r = false, bool n = true) : 
+  explicit PatternOrder(std::string k, bool r = false, bool n = true) :
     key(k), reverse(r), numeric(n) {}
   //! Comparison function for pattern pointers
   virtual bool operator()(const Pattern *m1, const Pattern *m2) const;
@@ -282,7 +282,7 @@ public:
   \class PatternCutoff
   \brief Provides operators to compare values to a predetermined cutoff
  */
-class PatternCutoff : public std::binary_function<Pattern*, std::string, bool> {
+class PatternCutoff { //: public std::binary_function<Pattern*, std::string, bool> {
 protected:
   //! The attribute used for comparison
   std::string key;
@@ -294,8 +294,8 @@ protected:
   bool numeric;
 public:
   //! The initialization constructor
-  explicit PatternCutoff(std::string k, std::string v, 
-			 bool r = false, bool n = true) : 
+  explicit PatternCutoff(std::string k, std::string v,
+                         bool r = false, bool n = true) :
     key(k), value(v), reverse(r), numeric(n) {}
   //! Comparison function for a pattern pointer
   virtual bool operator()(const Pattern *p) const;
@@ -339,9 +339,9 @@ class PatternFileException : public CREADException {
   int line_number;
 public:
   //! The initialization constructor takes optional message and line number
-  PatternFileException(std::string m = "", int l = -1) : 
+  PatternFileException(std::string m = "", int l = -1) :
     CREADException(m), line_number(l) {}
-  /*! 
+  /*!
     \brief Return a string composed of the message and the line number
     indication position in the file in which the error was detected.
    */

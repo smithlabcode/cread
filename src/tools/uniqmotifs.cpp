@@ -33,9 +33,7 @@ using std::list;
 using std::ofstream;
 using std::ostream;
 using std::ostream_iterator;
-using std::bind2nd;
 using std::numeric_limits;
-using std::ptr_fun;
 using std::min;
 using std::max;
 using std::abs;
@@ -58,14 +56,14 @@ bool equiv_motifs(Motif m1, Motif m2) {
   Matrix a = m1.const_get_matrix().freqmat();
   Matrix b = m2.const_get_matrix().freqmat();
   return (MatCompMethods::sliding_divergence(a, b, max_overhang) < threshold ||
-	  MatCompMethods::sliding_divergence(a, b.revcomp(),
-					 max_overhang) < threshold);
+          MatCompMethods::sliding_divergence(a, b.revcomp(),
+                                         max_overhang) < threshold);
 }
 
 bool equiv_matrices(Matrix m1, Matrix m2) {
   return (MatCompMethods::sliding_divergence(m1, m2, max_overhang) < threshold ||
-	  MatCompMethods::sliding_divergence(m1, m2.revcomp(),
-					 max_overhang) < threshold);
+          MatCompMethods::sliding_divergence(m1, m2.revcomp(),
+                                         max_overhang) < threshold);
 }
 
 bool equiv_modules(Module m1, Module m2) {
@@ -78,10 +76,10 @@ bool equiv_modules(Module m1, Module m2) {
     shorter = &m2;
     longer = &m1;
   }
-  for (vector<Matrix>::const_iterator i = shorter->begin(); 
+  for (vector<Matrix>::const_iterator i = shorter->begin();
        i != shorter->end(); ++i)
-    if (find_if(longer->begin(), longer->end(), 
-		bind2nd(ptr_fun(equiv_matrices), *i)) == longer->end())
+    if (find_if(longer->begin(), longer->end(),
+                [&](const Matrix &m) {return equiv_matrices(m, *i);}) == longer->end())
       return false;
   return true;
 }
@@ -89,13 +87,13 @@ bool equiv_modules(Module m1, Module m2) {
 int main(int argc, const char **argv) {
 
   string outfile;
-  string motifsfile;  
+  string motifsfile;
 
   size_t ntop = numeric_limits<size_t>::max();
   int processing_modules = false;
   int keep_eliminated = false;
   string rank_label;
-   
+
   // TODO: make sure the divergence and overhang are sane
   //       and that the program doesn't crash with bad input
   try {
@@ -108,9 +106,9 @@ int main(int argc, const char **argv) {
                       " comparing motifs", false, max_overhang);
     opt_parse.add_opt("threshold", 't', "threshold divergence"
                       " for elimination", false, threshold);
-    opt_parse.add_opt("modules", 'M', "processing modules", 
+    opt_parse.add_opt("modules", 'M', "processing modules",
                        false, processing_modules);
-    opt_parse.add_opt("ntop", 'n', "number of top motifs to outout", 
+    opt_parse.add_opt("ntop", 'n', "number of top motifs to outout",
                        false, ntop);
     opt_parse.add_opt("keep", 'k', "keep motifs that were eliminated;"
                       " just re-order", false, keep_eliminated);
@@ -145,33 +143,35 @@ int main(int argc, const char **argv) {
       list<Motif> motifs;
       copy(motifs_v.begin(), motifs_v.end(), back_inserter(motifs));
       if (keep_eliminated)
-	for (list<Motif>::iterator i = motifs.begin(); i != motifs.end();) {
-	  list<Motif>::iterator found = find_if(motifs.begin(), i,
-						bind2nd(ptr_fun(equiv_motifs), *i));
-	  if (found == i) ++i;
-	  else {
-	    i->set_attribute(elim_label, found->get_accession());
-	    ++found;
-	    motifs.insert(found, *i);
-	    i = motifs.erase(i);
-	  }
-	}
-      else
-	for (list<Motif>::iterator i = motifs.begin(); i != motifs.end();)
-	  if (find_if(motifs.begin(), i,
-		      bind2nd(ptr_fun(equiv_motifs), *i)) == i) ++i;
-	  else i = motifs.erase(i);
+        for (list<Motif>::iterator i = motifs.begin(); i != motifs.end();) {
+          list<Motif>::iterator found =
+            find_if(motifs.begin(), i, [&](const Motif &m) {return equiv_motifs(m, *i);});
+          // ADS: above was "bind2nd(ptr_fun(equiv_motifs), *i)"
+          if (found == i) ++i;
+          else {
+            i->set_attribute(elim_label, found->get_accession());
+            ++found;
+            motifs.insert(found, *i);
+            i = motifs.erase(i);
+          }
+        }
+      else {
+        // ADS: below, was using "bind2nd(ptr_fun(equiv_motifs), *i)"
+        for (list<Motif>::iterator i = motifs.begin(); i != motifs.end();)
+          if (find_if(motifs.begin(), i, [&](const Motif &m) {return equiv_motifs(m, *i);}) == i) ++i;
+          else i = motifs.erase(i);
+      }
       ostream* motifout = (outfile.c_str()) ? new ofstream(outfile.c_str()) : &cout;
       size_t rank = 0;
       for (list<Motif>::iterator i = motifs.begin(); i != motifs.end(); ++i) {
-	if (i->get_attribute(elim_label) == "" && rank++ == ntop)
-	  break;
-	if (rank_label.c_str()){
-	  if (i->get_attribute(elim_label) == "")
-	    i->set_attribute(rank_label.c_str() + string("_RANK"), cread::toa(rank));
-	  else i->set_attribute(rank_label.c_str() + string("_RANK"), "NA");
+        if (i->get_attribute(elim_label) == "" && rank++ == ntop)
+          break;
+        if (rank_label.c_str()){
+          if (i->get_attribute(elim_label) == "")
+            i->set_attribute(rank_label.c_str() + string("_RANK"), cread::toa(rank));
+          else i->set_attribute(rank_label.c_str() + string("_RANK"), "NA");
         }
-	*motifout << *i << endl;
+        *motifout << *i << endl;
       }
       if (motifout != &cout) delete motifout;
     }
@@ -181,33 +181,36 @@ int main(int argc, const char **argv) {
       copy(modules_v.begin(), modules_v.end(), back_inserter(modules));
       modules_v.clear();
       if (keep_eliminated)
-	for (list<Module>::iterator i = modules.begin(); i != modules.end();) {
-	  list<Module>::iterator found = find_if(modules.begin(), i,
-						 bind2nd(ptr_fun(equiv_modules), *i));
-	  if (found == i) ++i;
-	  else {
-	    i->set_attribute(elim_label, found->get_accession());
-	    ++found;
-	    modules.insert(found, *i);
-	    i = modules.erase(i);
-	  }
-	}
+        for (list<Module>::iterator i = modules.begin(); i != modules.end();) {
+          list<Module>::iterator found = find_if(modules.begin(), i,
+                                                 [&](const Module &m) {
+                                                   return equiv_modules(m, *i);
+                                                 });
+          // ADS: above, was using "bind2nd(ptr_fun(equiv_modules), *i)"
+          if (found == i) ++i;
+          else {
+            i->set_attribute(elim_label, found->get_accession());
+            ++found;
+            modules.insert(found, *i);
+            i = modules.erase(i);
+          }
+        }
       else
-	for (list<Module>::iterator i = modules.begin(); i != modules.end();)
-	  if (find_if(modules.begin(), i, 
-		      bind2nd(ptr_fun(equiv_modules), *i)) == i) ++i;
-	  else i = modules.erase(i);
+        for (list<Module>::iterator i = modules.begin(); i != modules.end();)
+          if (find_if(modules.begin(), i, [&](const Module &m) { return equiv_modules(m, *i); }) == i)
+            ++i;
+          else i = modules.erase(i);
       ostream* moduleout = (outfile.c_str()) ? new ofstream(outfile.c_str()) : &cout;
       size_t rank = 0;
       for (list<Module>::iterator i = modules.begin(); i != modules.end(); ++i) {
-	if (i->get_attribute(elim_label) == "" && rank++ == ntop)
-	  break;
-	if (rank_label.c_str()) {
-	  if (i->get_attribute(elim_label) == "")
-	    i->set_attribute(rank_label.c_str() + string("_RANK"), cread::toa(rank));
-      	  else i->set_attribute(rank_label.c_str() + string("_RANK"), "NA");
+        if (i->get_attribute(elim_label) == "" && rank++ == ntop)
+          break;
+        if (rank_label.c_str()) {
+          if (i->get_attribute(elim_label) == "")
+            i->set_attribute(rank_label.c_str() + string("_RANK"), cread::toa(rank));
+          else i->set_attribute(rank_label.c_str() + string("_RANK"), "NA");
         }
-	*moduleout << *i << endl;
+        *moduleout << *i << endl;
       }
       if (moduleout != &cout) delete moduleout;
     }

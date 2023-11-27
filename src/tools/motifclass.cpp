@@ -130,17 +130,19 @@ inline double binomial(float N, float k, double p) {
 }
 
 float optimize_binomial(vector<float> &fgmax, vector<float> &bgmax, float p) {
-  sort(fgmax.begin(), fgmax.end(), greater<float>());
-  sort(bgmax.begin(), bgmax.end(), greater<float>());
+  sort(begin(fgmax), end(fgmax));
+  reverse(begin(fgmax), end(fgmax));
+  sort(begin(bgmax), end(bgmax));
+  reverse(begin(bgmax), end(bgmax));
   size_t successes = 0, trials = 0;
   float best_threshold = numeric_limits<float>::max(), best_p_value = 1.0;
 
-  for (vector<float>::iterator i = fgmax.begin(), j = bgmax.begin();
-       i != fgmax.end(); ++i) {
+  for (vector<float>::iterator i = begin(fgmax), j = begin(bgmax);
+       i != end(fgmax); ++i) {
     ++successes;
     ++trials;
 
-    for (; *j >= *i && j != bgmax.end(); ++j) ++trials;
+    for (; *j >= *i && j != end(bgmax); ++j) ++trials;
 
     float temp_p_value = binomial(trials, successes, p);
     if (temp_p_value <= best_p_value) {
@@ -153,17 +155,17 @@ float optimize_binomial(vector<float> &fgmax, vector<float> &bgmax, float p) {
 
 float optimize_relative_error(vector<float> &fgmax,
                               vector<float> &bgmax, float r) {
-  sort(fgmax.begin(), fgmax.end(), greater<float>());
-  sort(bgmax.begin(), bgmax.end(), greater<float>());
+  sort(begin(fgmax), end(fgmax), greater<float>());
+  sort(begin(bgmax), end(bgmax), greater<float>());
   float successes = r*bgmax.size(), most_successes = r*bgmax.size();
   float best_threshold = numeric_limits<float>::max();
   float spec = r*bgmax.size();
   float min_spec = spec_param*r*bgmax.size();
-  for (vector<float>::iterator i = fgmax.begin(), j = bgmax.begin();
-       i != fgmax.end(); ++i) {
+  for (vector<float>::iterator i = begin(fgmax), j = begin(bgmax);
+       i != end(fgmax); ++i) {
     ++successes;
 
-    for (; *j >= *i && j != bgmax.end(); ++j) {
+    for (; *j >= *i && j != end(bgmax); ++j) {
       successes -= r;
       spec -= r;
     }
@@ -178,17 +180,17 @@ float optimize_relative_error(vector<float> &fgmax,
 float
 optimize_relative_error_get_score(vector<float> &fgmax,
                                   vector<float> &bgmax, float r) {
-  sort(fgmax.begin(), fgmax.end(), greater<float>());
-  sort(bgmax.begin(), bgmax.end(), greater<float>());
+  sort(begin(fgmax), end(fgmax), greater<float>());
+  sort(begin(bgmax), end(bgmax), greater<float>());
   float successes = r*bgmax.size(), most_successes = r*bgmax.size();
   // float best_threshold = numeric_limits<float>::max();
   float spec = r*bgmax.size();
   float min_spec = spec_param*r*bgmax.size();
-  for (vector<float>::iterator i = fgmax.begin(), j = bgmax.begin();
-       i != fgmax.end(); ++i) {
+  for (vector<float>::iterator i = begin(fgmax), j = begin(bgmax);
+       i != end(fgmax); ++i) {
     ++successes;
 
-    for (; *j >= *i && j != bgmax.end(); ++j) {
+    for (; *j >= *i && j != end(bgmax); ++j) {
       successes -= r;
       spec -= r;
     }
@@ -249,10 +251,10 @@ float get_threshold(Motif& motif) {
 void get_counts_above_threshold(vector<float>& fgmax, vector<float>& bgmax,
                                 float threshold, float& fgcount,
                                 float &bgcount) {
-  fgcount = count_if(fgmax.begin(), fgmax.end(),
-                     bind2nd(greater_equal<float>(), threshold));
-  bgcount = count_if(bgmax.begin(), bgmax.end(),
-                     bind2nd(greater_equal<float>(), threshold));
+  fgcount = count_if(begin(fgmax), end(fgmax),
+                     [&](const float x) {return x >= threshold;});
+  bgcount = count_if(begin(bgmax), end(bgmax),
+                     [&](const float x) {return x >= threshold;});
 }
 
 void

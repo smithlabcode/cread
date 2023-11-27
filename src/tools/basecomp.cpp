@@ -37,11 +37,11 @@ using std::endl;
 
 static void
 compute_base_comp(const string &infile, vector<double> &basecomp) {
-  
-  std::ifstream in(infile.c_str());
+
+  std::ifstream in(infile);
   if (!in)
     throw std::runtime_error("cannot open file: " + infile);
-  
+
   string line;
   while (getline(in, line)) {
     if (line[0] != '>')
@@ -49,38 +49,38 @@ compute_base_comp(const string &infile, vector<double> &basecomp) {
         if (isvalid(*i))
           ++basecomp[base2int(*i)];
   }
-  
-  const double total = 
-    std::accumulate(basecomp.begin(), basecomp.end(), 0.0);
-  
-  std::transform(basecomp.begin(), basecomp.end(), basecomp.begin(),
-                 std::bind2nd(std::divides<double>(), total));
+
+  const double total =
+    std::accumulate(begin(basecomp), end(basecomp), 0.0);
+
+  std::transform(cbegin(basecomp), cend(basecomp), begin(basecomp),
+                 [&](const double x) {return x/total;});
 }
 
 
 
 static void
 abbreviate_precision(const double decimal_places, vector<double> &basecomp) {
-  
+
   const double shifting_factor = std::pow(10.0, decimal_places);
 
-  transform(basecomp.begin(), basecomp.end(), basecomp.begin(),
-            std::bind2nd(std::multiplies<double>(), shifting_factor));
-  
-  transform(basecomp.begin(), basecomp.end(), basecomp.begin(), 
-            std::ptr_fun(round));
+  transform(cbegin(basecomp), cend(basecomp), begin(basecomp),
+            [&](const double x) {return x*shifting_factor;});
 
-  transform(basecomp.begin(), basecomp.end(), basecomp.begin(),
-            std::bind2nd(std::divides<double>(), shifting_factor));
+  transform(cbegin(basecomp), cend(basecomp), begin(basecomp),
+            [&](const double x) {return round(x);});
+
+  transform(cbegin(basecomp), cend(basecomp), begin(basecomp),
+            [&](const double x) {return x/shifting_factor;});
 }
 
 static string
-format_basecomp(const bool FULL_PRECISION, 
+format_basecomp(const bool FULL_PRECISION,
                 const size_t decimal_places, vector<double> &basecomp) {
-  if (FULL_PRECISION) 
+  if (FULL_PRECISION)
     abbreviate_precision(decimal_places, basecomp);
   std::ostringstream oss;
-  copy(basecomp.begin(), basecomp.end(), 
+  copy(basecomp.begin(), basecomp.end(),
        std::ostream_iterator<double>(oss, "\t"));
   return oss.str();
 }
@@ -88,20 +88,20 @@ format_basecomp(const bool FULL_PRECISION,
 
 int
 main(int argc, const char **argv) {
-  
+
   try {
 
     static const size_t decimal_places = 3;
-    
+
     string outfile;
 
     // run mode flags
     bool VERBOSE = false;
     bool FILES_SEPARATELY = false;
     bool FULL_PRECISION = false;
-    /// bool SEQUENCES_SEPARATELY = false; 
+    /// bool SEQUENCES_SEPARATELY = false;
     /// bool SINGLE_STRAND = false;
-    
+
     /****************** COMMAND LINE OPTIONS ********************/
     OptionParser opt_parse(strip_path(argv[0]), "base composition of sequences",
                            "fasta1 [fasta2 ...]");
@@ -112,7 +112,7 @@ main(int argc, const char **argv) {
     opt_parse.add_opt("precise", 'p', "output full precision",
                       false, FULL_PRECISION);
     opt_parse.add_opt("verbose", 'v', "print more run info", false, VERBOSE);
-    
+
     vector<string> leftover_args;
     opt_parse.parse(argc, argv, leftover_args);
     if (argc == 1 || opt_parse.help_requested()) {
@@ -140,21 +140,21 @@ main(int argc, const char **argv) {
     std::ostream out(outfile.empty() ? std::cout.rdbuf() : of.rdbuf());
 
     vector<double> basecomp(smithlab::alphabet_size, 0.0);
-    
+
     for (size_t i = 0; i < input_filenames.size(); ++i) {
-      
+
       compute_base_comp(input_filenames[i], basecomp);
-      
+
       if (FILES_SEPARATELY) {
         out << strip_path(input_filenames[i]) << '\t'
             << format_basecomp(FULL_PRECISION, decimal_places, basecomp) << endl;
         basecomp = vector<double>(smithlab::alphabet_size, 0.0);
       }
     }
-    
+
     if (!FILES_SEPARATELY)
       out << format_basecomp(FULL_PRECISION, decimal_places, basecomp) << endl;
-    
+
   }
   catch (std::runtime_error &e) {
     cerr << "ERROR: " << e.what() << endl;

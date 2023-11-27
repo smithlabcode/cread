@@ -56,7 +56,7 @@ WordTable::WordTable(std::vector<string> &seqs, size_t wordsize,
   float total = kmer_counts(seqs, counts, mersize);
 
   std::transform(counts.begin(), counts.end(), back_inserter(mer_freq),
-                 bind2nd(std::divides<float>(), total));
+                 [&](const float x) {return x/total;});
   nwords = static_cast<size_t>(pow(static_cast<float>(alphabet_size),
                                    static_cast<int>(wordsize)));
   hits = vector<vector<size_t> >(nwords, vector<size_t>(maxgap + 1));
@@ -96,7 +96,7 @@ WordTable::base_comp_from_file(string filename, float *bc) {
   }
   delete[] buffer;
   std::transform(tempbc, tempbc + alphabet_size, bc,
-                 bind2nd(std::divides<double>(), total));
+                 [&](const double x) {return x/total;});
   fin.close();
 }
 
@@ -157,7 +157,7 @@ WordTable::WordTable(string filename, size_t wordsize,
   vector<size_t> counts;
   const float total = kmer_counts_from_file(filename, counts, mersize);
   std::transform(counts.begin(), counts.end(), back_inserter(mer_freq),
-                 bind2nd(std::divides<float>(), total));
+                 [&](const float x) {return x/total;});
   nwords = static_cast<size_t>(pow(static_cast<float>(alphabet_size),
                                    static_cast<int>(wordsize)));
   hits = vector<vector<size_t> >(nwords, vector<size_t>(maxgap + 1));

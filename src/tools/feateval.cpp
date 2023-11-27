@@ -73,16 +73,16 @@ feature_info::addstats(vector<FBObs> &obs, size_t index) {
 bool
 feature_info::predict(FBObs &obs, size_t index) const {
   return (fg_abv_split && obs[index] > split_val) ||
-    (!fg_abv_split && obs[index] < split_val); 
+    (!fg_abv_split && obs[index] < split_val);
 }
 
 std::ostream& operator<<(std::ostream &s, const feature_info &fi) {
-  return s << fi.name << "\t" << fi.fg_abv_split << "\t"<< fi.split_val 
-	   << "\t" << fi.sens << "\t" << fi.spec << "\t" << fi.err;
+  return s << fi.name << "\t" << fi.fg_abv_split << "\t"<< fi.split_val
+           << "\t" << fi.sens << "\t" << fi.spec << "\t" << fi.err;
 }
 
-class InfoOrder : public std::binary_function<const feature_info&, 
-		  const feature_info&, bool> {
+class InfoOrder {
+  // : public std::binary_function<const feature_info&,  const feature_info&, bool> {
 public:
   explicit InfoOrder() {}
   bool operator()(const feature_info &i1, const feature_info &i2) const {
@@ -94,11 +94,11 @@ template <class U, class T> T get2nd(pair<U, T> &p) {
   return p.second;
 }
 
-feature_info feateval(vector<FBObs> &obs, 
-		      string &name, size_t index) {
+feature_info feateval(vector<FBObs> &obs,
+                      string &name, size_t index) {
   float tot_weight = accumulate(obs.begin(), obs.end(), 0.0, FBObs::accum_weight);
   float pos_weight = accumulate(obs.begin(), obs.end(), 0.0, FBObs::accum_pos_weight);
-  
+
   vector<pair<float, FBObs*> > helper(obs.size());
   for (size_t i = 0; i < obs.size(); ++i) {
     helper[i].first = obs[i][index];
@@ -107,27 +107,28 @@ feature_info feateval(vector<FBObs> &obs,
   sort(helper.begin(), helper.end());
   vector<FBObs*> obs_ptrs;
   transform(helper.begin(), helper.end(), back_inserter(obs_ptrs),
-	    std::ptr_fun(get2nd<float, FBObs*>));
-  
+            [](const pair<float, FBObs*> &p) {return p.second;});
+  // ADS: above was "std::ptr_fun(get2nd<float, FBObs*>)"
+
   float best_err = std::min(pos_weight, tot_weight - pos_weight);
   bool abv_splt = true;
   float best_split = 0;
-  
+
   float temp_pos = 0.0, temp_tot = 0.0;
   bool temp_above = true;
   for (size_t i = 0; i < obs.size() - 1; ++i) {
     temp_tot += obs_ptrs[i]->get_weight();
-    if (obs_ptrs[i]->get_outcome()) 
+    if (obs_ptrs[i]->get_outcome())
       temp_pos += obs_ptrs[i]->get_weight();
     if ((*obs_ptrs[i])[index] != (*obs_ptrs[i + 1])[index]) {
       temp_above = (temp_pos < (temp_tot - temp_pos));
-      float err = std::min(temp_pos + (tot_weight - pos_weight) - 
-			   (temp_tot - temp_pos),
-			   (temp_tot - temp_pos) + (pos_weight - temp_pos));
+      float err = std::min(temp_pos + (tot_weight - pos_weight) -
+                           (temp_tot - temp_pos),
+                           (temp_tot - temp_pos) + (pos_weight - temp_pos));
       if (err < best_err) {
-	best_err = err;
-	best_split = ((*obs_ptrs[i])[index] + (*obs_ptrs[i + 1])[index])/2;
-	abv_splt = temp_above;
+        best_err = err;
+        best_split = ((*obs_ptrs[i])[index] + (*obs_ptrs[i + 1])[index])/2;
+        abv_splt = temp_above;
       }
     }
   }
@@ -137,7 +138,7 @@ feature_info feateval(vector<FBObs> &obs,
 }
 
 void get_train_test(vector<FBObs> &obs, size_t fold, size_t part,
-		    vector<FBObs> &training, vector<FBObs> &testing) {
+                    vector<FBObs> &training, vector<FBObs> &testing) {
   training.clear();
   testing.clear();
   float subset_size = obs.size()/static_cast<float>(fold);
@@ -149,7 +150,7 @@ void get_train_test(vector<FBObs> &obs, size_t fold, size_t part,
 }
 
 int main (int argc, const char **argv) {
-  
+
   string datafile;
   string outfile;
 
@@ -162,17 +163,17 @@ int main (int argc, const char **argv) {
   /**************** GET COMMAND LINE ARGUMENTS **********************/
 
   OptionParser opt_parse(strip_path(argv[0])," ", " ");
-  opt_parse.add_opt("balance", 'b', 
+  opt_parse.add_opt("balance", 'b',
          "balance contribution of positive and negative data", false, balance);
   // TODO: implement these
-  //opt_parse.add_opt("performance", 'p',  "output training error", 
+  //opt_parse.add_opt("performance", 'p',  "output training error",
                     // false, &print_performance);
   //opt_parse.add_opt("estimates", 'e',
        //"print estimated outcome for each observation", false, &print_estimates);
 
-  opt_parse.add_opt("cross-validate", 'c', "perform cross validation", 
+  opt_parse.add_opt("cross-validate", 'c', "perform cross validation",
                      false, cross_validate);
-  opt_parse.add_opt("output", 'o', "name of output file", 
+  opt_parse.add_opt("output", 'o', "name of output file",
                      false, outfile);
 
   vector<string> leftover_args;
@@ -204,58 +205,58 @@ int main (int argc, const char **argv) {
     FBObs::read_observations(datafile.c_str(), feature_names, observations);
     if (balance) {
       float total = accumulate(observations.begin(), observations.end(), 0.0,
-			       FBObs::accum_weight);
+                               FBObs::accum_weight);
       float positive = accumulate(observations.begin(), observations.end(), 0.0,
-				  FBObs::accum_pos_weight);
+                                  FBObs::accum_pos_weight);
       for (size_t i = 0; i < observations.size(); ++i)
-	if (observations[i].get_outcome()) 
-	  observations[i].set_weight(1);
-	else observations[i].set_weight(positive/(total - positive));
+        if (observations[i].get_outcome())
+          observations[i].set_weight(1);
+        else observations[i].set_weight(positive/(total - positive));
     }
-    
+
     vector<feature_info> fi;
     if (cross_validate) {
       Observation<float, bool>::shuffle(observations);
       vector<FBObs> training, testing;
       get_train_test(observations, cross_validate, 0, training, testing);
       float test_weight = accumulate(testing.begin(), testing.end(), 0.0,
-				     FBObs::accum_weight);
+                                     FBObs::accum_weight);
       float test_pos = accumulate(testing.begin(), testing.end(), 0.0,
-					 FBObs::accum_pos_weight);
+                                         FBObs::accum_pos_weight);
       float test_neg = test_weight - test_pos;
       float total_weight = test_weight;
       float total_pos = test_pos;
       float total_neg = test_neg;
       for (size_t j = 0; j < feature_names.size(); ++j) {
-	fi.push_back(feateval(training, feature_names[j], j));
-	fi.back().addstats(testing, j);
+        fi.push_back(feateval(training, feature_names[j], j));
+        fi.back().addstats(testing, j);
       }
       for (size_t i = 1; i < cross_validate; ++i) {
-	get_train_test(observations, cross_validate, i, training, testing);
-	test_weight = accumulate(testing.begin(), testing.end(), 0.0,
-				 FBObs::accum_weight);
-	test_pos = accumulate(testing.begin(), testing.end(), 0.0,
-				     FBObs::accum_pos_weight);
-	test_neg = test_weight - test_pos;
-	for (size_t j = 0; j < feature_names.size(); ++j) {
-	  feature_info temp_fi = feateval(training, feature_names[j], j);
-	  temp_fi.addstats(testing, j);
-	  fi[j].err = (total_weight*fi[j].err + test_weight*temp_fi.err)/
-	    (total_weight + test_weight);
-	  fi[j].sens = (total_pos*fi[j].sens + test_pos*temp_fi.sens)/
-	    ((total_pos + test_pos) ? (total_pos + test_pos) : 1);
-	  fi[j].spec = (total_neg*fi[j].spec + test_neg*temp_fi.spec)/
-	    ((total_neg + test_neg) ? (total_neg + test_neg) : 1);
-	}
-	total_weight += test_weight;
-	total_pos += test_pos;
-	total_neg += test_neg;
+        get_train_test(observations, cross_validate, i, training, testing);
+        test_weight = accumulate(testing.begin(), testing.end(), 0.0,
+                                 FBObs::accum_weight);
+        test_pos = accumulate(testing.begin(), testing.end(), 0.0,
+                                     FBObs::accum_pos_weight);
+        test_neg = test_weight - test_pos;
+        for (size_t j = 0; j < feature_names.size(); ++j) {
+          feature_info temp_fi = feateval(training, feature_names[j], j);
+          temp_fi.addstats(testing, j);
+          fi[j].err = (total_weight*fi[j].err + test_weight*temp_fi.err)/
+            (total_weight + test_weight);
+          fi[j].sens = (total_pos*fi[j].sens + test_pos*temp_fi.sens)/
+            ((total_pos + test_pos) ? (total_pos + test_pos) : 1);
+          fi[j].spec = (total_neg*fi[j].spec + test_neg*temp_fi.spec)/
+            ((total_neg + test_neg) ? (total_neg + test_neg) : 1);
+        }
+        total_weight += test_weight;
+        total_pos += test_pos;
+        total_neg += test_neg;
       }
     }
-    else 
+    else
       for (size_t i = 0; i < feature_names.size(); ++i)
-	fi.push_back(feateval(observations, feature_names[i], i));
-    
+        fi.push_back(feateval(observations, feature_names[i], i));
+
     sort(fi.begin(), fi.end(), InfoOrder());
     ostream* output = (!outfile.empty()) ? new ofstream(outfile.c_str()) : &cout;
     copy(fi.begin(), fi.end(), ostream_iterator<feature_info>(*output, "\n"));

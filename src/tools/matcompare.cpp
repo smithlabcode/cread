@@ -66,7 +66,7 @@ int use_chisquared = false;
 
 const char *null_name = "NONE";
 
-static const float prior = 0.0005;                
+static const float prior = 0.0005;
 static const size_t n_degenerate_nucleotides = 15;
 static const float fixed_matrix[n_degenerate_nucleotides][alphabet_size] = {
   { 1.000, 0.000, 0.000, 0.000 },  // A
@@ -117,19 +117,19 @@ string get_consensus(Matrix matrix) {
     float score = numeric_limits<float>::max();
     for (size_t j = 0; j < n_degenerate_nucleotides; ++j) {
       float temp_score = 0;
-      for (size_t k = 0; k < alphabet_size; k++) 
-	if (fixed_matrix[j][k] > 0) {
-	  if (matrix[i][k] > 0) 
-	    temp_score += (fixed_matrix[j][k] - matrix[i][k]) * 
-	      log(fixed_matrix[j][k]/matrix[i][k]);
-	  else temp_score += (fixed_matrix[i][j] - prior) * 
-		 log(fixed_matrix[i][j]/prior);
-	}
-	else if (matrix[i][k] > 0) 
-	  temp_score += (prior - matrix[i][k]) * log(prior/matrix[i][k]);
+      for (size_t k = 0; k < alphabet_size; k++)
+        if (fixed_matrix[j][k] > 0) {
+          if (matrix[i][k] > 0)
+            temp_score += (fixed_matrix[j][k] - matrix[i][k]) *
+              log(fixed_matrix[j][k]/matrix[i][k]);
+          else temp_score += (fixed_matrix[i][j] - prior) *
+                 log(fixed_matrix[i][j]/prior);
+        }
+        else if (matrix[i][k] > 0)
+          temp_score += (prior - matrix[i][k]) * log(prior/matrix[i][k]);
       if (temp_score < score) {
-	best = j;
-	score = temp_score;
+        best = j;
+        score = temp_score;
       }
     }
     r += fixed_matrix_alphabet[best];
@@ -168,7 +168,7 @@ struct row_data {
       r.push_back(strlen(field_names[i]));
     for (size_t i = 0; i < rows.size(); ++i)
       for (size_t j = 0; j < n_fields; ++j)
-	r[j] = max(r[j], rows[i][j].length());
+        r[j] = max(r[j], rows[i][j].length());
     return r;
   }
   static string get_separator(vector<size_t> fw) {
@@ -182,7 +182,7 @@ row_data::spacer = "  ";
 
 const char *
 row_data::field_names[n_fields] = {
-  "Rank", "Accession", "Identifier", 
+  "Rank", "Accession", "Identifier",
   "RC", "Divergence", "Alignment"
 };
 
@@ -193,19 +193,19 @@ void write_alignment(vector<vector<row_data> > &rows, vector<Motif> &motifs) {
       vector<size_t> fw = row_data::get_fw(rows[i]);
       string line = row_data::get_separator(fw);
       table << motifs[i].get_accession() << endl << line << endl
-	    << row_data::get_headers(fw) << endl << line << endl;
+            << row_data::get_headers(fw) << endl << line << endl;
       for (size_t j = 0; j < rows[i].size(); ++j) {
-	table << rows[i][j].format(fw) << endl;
-	if (j < rows[i].size() - 1 && j % 2) table << endl;
+        table << rows[i][j].format(fw) << endl;
+        if (j < rows[i].size() - 1 && j % 2) table << endl;
       }
       table << line << endl << endl;
     }
   table.close();
 }
 
-void get_alignment_rows(Motif &motif, vector<Motif> &motif_lib, 
-			vector<match> &top_matches, vector<row_data> &rows) {
-  for (vector<match>::iterator i = top_matches.begin(); 
+void get_alignment_rows(Motif &motif, vector<Motif> &motif_lib,
+                        vector<match> &top_matches, vector<row_data> &rows) {
+  for (vector<match>::iterator i = top_matches.begin();
        i != top_matches.end(); ++i) {
     vector<string> temp_row;
     Motif lm = motif_lib[i->index];
@@ -218,7 +218,7 @@ void get_alignment_rows(Motif &motif, vector<Motif> &motif_lib,
     if ((i->offset >= 0) == (libmat.get_width() <= matrix.get_width()))
       lib_consensus = filler + lib_consensus;
     else consensus = filler + consensus;
-    int right_fill = static_cast<int>(consensus.length()) - 
+    int right_fill = static_cast<int>(consensus.length()) -
       static_cast<int>(lib_consensus.length());
     if (right_fill > 0)
       fill_n(back_inserter(lib_consensus), right_fill, ' ');
@@ -243,113 +243,113 @@ string replace_bad_characters(string s) {
 }
 
 void add_factors(Motif &motif, vector<Motif> &library,
-		 vector<match> &top_matches) {
+                 vector<match> &top_matches) {
   string match_prefix = match_label;
   for (size_t i = 0; i < top_matches.size(); ++i) {
     Motif match = library[top_matches[i].index];
     string match_value = match.get_accession() +
       string(separator) + replace_bad_characters(match.get_factor_names()) +
-      string(separator) + match.get_identifier() + 
+      string(separator) + match.get_identifier() +
       string(separator) + cread::toa(top_matches[i].divergence);
     motif.set_attribute(match_prefix + cread::toa(i + 1), match_value);
   }
 }
 
 void add_factors_module(Module &module, vector<Motif> &library,
-			vector<vector<match> > &top_matches) {
+                        vector<vector<match> > &top_matches) {
   string match_prefix = match_label;
   for (size_t i = 0; i < module.size(); ++i) {
     string matrix_prefix = Module::add_index(match_prefix.c_str(), i);
     for (size_t j = 0; j < top_matches[i].size(); ++j) {
       Motif match = library[top_matches[i][j].index];
-      string match_value = match.get_accession() + 
- 	string(separator) + match.get_identifier() + 
- 	string(separator) + replace_bad_characters(match.get_factor_names()) +
-	string(separator) + cread::toa(top_matches[i][j].divergence);
+      string match_value = match.get_accession() +
+        string(separator) + match.get_identifier() +
+        string(separator) + replace_bad_characters(match.get_factor_names()) +
+        string(separator) + cread::toa(top_matches[i][j].divergence);
       module.set_attribute(Module::add_index(matrix_prefix.c_str(), j + 1),
-			   match_value);
+                           match_value);
     }
   }
 }
 
 
-void get_matches(Matrix matrix, vector<Motif> &lib, 
-		 vector<match> &matches) {
+void get_matches(Matrix matrix, vector<Motif> &lib,
+                 vector<match> &matches) {
   size_t min_width = matrix.get_width() - max_overhang;
   const Matrix matrix_rc = matrix.revcomp();
-  
+
   typedef vector<Motif>::iterator motif_iter;
-  
+
   if (use_fisher || use_chisquared){
     priority_queue<match, vector<match>, greater<match> > top_matches;
     size_t index = 0;
     for (motif_iter j = lib.begin(); j != lib.end(); ++j){
       if (j->get_width() >= min_width){
-	Matrix b = j->get_matrix();
-	if (use_fisher){
-	  // do fisher test
-	  float fisher_forward = 
-	    MatCompMethods::sliding_fishertest(b, matrix, max_overhang);
-	  float fisher_rc = 
-	    MatCompMethods::sliding_fishertest(b, matrix_rc, max_overhang);
-	  bool rc = false;
-	  float fisher;
-	  int offset = 0;
-	  if(fisher_rc > fisher_forward){
-	    fisher = fisher_rc;
-	    rc = true;
-	    offset = MatCompMethods::sliding_fishertest_offset(b, matrix_rc, 
-							   max_overhang);
-	  }
-	  else{
-	    fisher = fisher_forward;
-	    offset = MatCompMethods::sliding_fishertest_offset(b, matrix, 
-							 max_overhang);
-	  }
-	  if (fisher > threshold &&
-	      (top_matches.size() < n_top ||
-	       fisher > top_matches.top().divergence)){
-	    top_matches.push(match(index, fisher, rc, offset));
-	    if (top_matches.size() > n_top)
-	      top_matches.pop();
-	  }
-	}
-	
+        Matrix b = j->get_matrix();
+        if (use_fisher){
+          // do fisher test
+          float fisher_forward =
+            MatCompMethods::sliding_fishertest(b, matrix, max_overhang);
+          float fisher_rc =
+            MatCompMethods::sliding_fishertest(b, matrix_rc, max_overhang);
+          bool rc = false;
+          float fisher;
+          int offset = 0;
+          if(fisher_rc > fisher_forward){
+            fisher = fisher_rc;
+            rc = true;
+            offset = MatCompMethods::sliding_fishertest_offset(b, matrix_rc,
+                                                           max_overhang);
+          }
+          else{
+            fisher = fisher_forward;
+            offset = MatCompMethods::sliding_fishertest_offset(b, matrix,
+                                                         max_overhang);
+          }
+          if (fisher > threshold &&
+              (top_matches.size() < n_top ||
+               fisher > top_matches.top().divergence)){
+            top_matches.push(match(index, fisher, rc, offset));
+            if (top_matches.size() > n_top)
+              top_matches.pop();
+          }
+        }
+
 #ifdef HAVE_GSL
-	else if (use_chisquared){
-	  // do chi squared test
-	  float chisquare_forward = 
-	    MatCompMethods::sliding_chisquared(b, matrix, max_overhang);
-	  float chisquare_rc = 
-	    MatCompMethods::sliding_chisquared(b, matrix_rc, max_overhang);
-	  bool rc = false;
-	  float chisquare;
-	  int offset = 0;
-	  if (chisquare_rc > chisquare_forward){
-	    chisquare = chisquare_rc;
-	    rc = true;
-	    offset = MatCompMethods::sliding_chisquared_offset(b, matrix_rc, 
-							   max_overhang);
-	  }
-	  else{
-	    chisquare = chisquare_forward;
-	    offset = MatCompMethods::sliding_chisquared_offset(b, matrix, 
-							   max_overhang);
-	  }
-	  if (chisquare > threshold &&
-	      (top_matches.size() < n_top ||
-	       chisquare > top_matches.top().divergence)){
-	    top_matches.push(match(index, chisquare, rc, offset));
-	    if (top_matches.size() > n_top)
-	      top_matches.pop();
-	  }
-	}
+        else if (use_chisquared){
+          // do chi squared test
+          float chisquare_forward =
+            MatCompMethods::sliding_chisquared(b, matrix, max_overhang);
+          float chisquare_rc =
+            MatCompMethods::sliding_chisquared(b, matrix_rc, max_overhang);
+          bool rc = false;
+          float chisquare;
+          int offset = 0;
+          if (chisquare_rc > chisquare_forward){
+            chisquare = chisquare_rc;
+            rc = true;
+            offset = MatCompMethods::sliding_chisquared_offset(b, matrix_rc,
+                                                           max_overhang);
+          }
+          else{
+            chisquare = chisquare_forward;
+            offset = MatCompMethods::sliding_chisquared_offset(b, matrix,
+                                                           max_overhang);
+          }
+          if (chisquare > threshold &&
+              (top_matches.size() < n_top ||
+               chisquare > top_matches.top().divergence)){
+            top_matches.push(match(index, chisquare, rc, offset));
+            if (top_matches.size() > n_top)
+              top_matches.pop();
+          }
+        }
 #endif
       }
       index++;
     }
-    
-    
+
+
     matches.clear();
     while (top_matches.size() > 0) {
       matches.push_back(top_matches.top());
@@ -373,34 +373,34 @@ void get_matches(Matrix matrix, vector<Motif> &lib,
 
     for (motif_iter j = lib.begin(); j != lib.end(); ++j){
       if (j->get_width() >= min_width){
-	Matrix b = j->get_matrix().freqmat();
-	float divergence_forward = 
-	  MatCompMethods::sliding_divergence(matrix, b.freqmat(), max_overhang);
-	float divergence_rc = 
-	  MatCompMethods::sliding_divergence(matrix_rc, b.freqmat(), max_overhang);
-	bool rc = false;
-	float divergence;
-	int offset = 0;
-	if (divergence_rc < divergence_forward) {
-	  divergence = divergence_rc;
-	  rc = true;
-	  MatCompMethods::sliding_divergence_offset(b, matrix_rc,
-						    offset, max_overhang);
-	}
-	else {
-	  divergence = divergence_forward;
-	  MatCompMethods::sliding_divergence_offset(b, matrix,
-						    offset, max_overhang);
-	}
-	if (divergence < threshold && 
-	    (top_matches.size() < n_top || 
-	     divergence < top_matches.top().divergence)) {
-	  top_matches.push(match(index, divergence, rc, offset));
-	  if (top_matches.size() > n_top){
-	    top_matches.pop();
-	    
-	  }
-	}
+        Matrix b = j->get_matrix().freqmat();
+        float divergence_forward =
+          MatCompMethods::sliding_divergence(matrix, b.freqmat(), max_overhang);
+        float divergence_rc =
+          MatCompMethods::sliding_divergence(matrix_rc, b.freqmat(), max_overhang);
+        bool rc = false;
+        float divergence;
+        int offset = 0;
+        if (divergence_rc < divergence_forward) {
+          divergence = divergence_rc;
+          rc = true;
+          MatCompMethods::sliding_divergence_offset(b, matrix_rc,
+                                                    offset, max_overhang);
+        }
+        else {
+          divergence = divergence_forward;
+          MatCompMethods::sliding_divergence_offset(b, matrix,
+                                                    offset, max_overhang);
+        }
+        if (divergence < threshold &&
+            (top_matches.size() < n_top ||
+             divergence < top_matches.top().divergence)) {
+          top_matches.push(match(index, divergence, rc, offset));
+          if (top_matches.size() > n_top){
+            top_matches.pop();
+
+          }
+        }
       }
       index++;
     }
@@ -423,7 +423,7 @@ Matrix get_freqmat(Motif m) {
 int main(int argc, const char **argv) {
   int processing_modules = false;
   int list_mode = false;
-  int verbose = false;  
+  int verbose = false;
   string outfile;
   string motifsfile;
   string libfile;
@@ -444,13 +444,13 @@ int main(int argc, const char **argv) {
                       " for elimination", false, threshold);
     opt_parse.add_opt("modules", 'M',  "specifies that the file"
                       " contains modules", false, processing_modules);
-    opt_parse.add_opt("ntop", 'n',  "number of top matches to report", 
+    opt_parse.add_opt("ntop", 'n',  "number of top matches to report",
                        false, n_top);
     opt_parse.add_opt("base-comp", 'b',  "comma separated base frequencies",
                        false, base_comp_string);
     opt_parse.add_opt("verbose", 'v', "print more match info in attributes",
                        false, verbose);
-    opt_parse.add_opt("fisher", 'F', "default: K-L divergence", 
+    opt_parse.add_opt("fisher", 'F', "default: K-L divergence",
                        false, use_fisher);
     opt_parse.add_opt("chisquared", 'C', "default: K-L divergence",
                        false, use_chisquared);
@@ -482,96 +482,96 @@ int main(int argc, const char **argv) {
       vector<Motif> library = Motif::ReadMotifVector(libfile.c_str());
       vector<Motif> motifs;
       vector<Module> modules;
-      
+
       ostringstream outbuffer;
       if (!processing_modules){
-	motifs = Motif::ReadMotifVector(motifsfile.c_str());
+        motifs = Motif::ReadMotifVector(motifsfile.c_str());
 
-	typedef vector<Motif>::iterator motif_iter;
-	for (motif_iter motif = motifs.begin(); motif != motifs.end(); ++motif) {
-	  float best_score = (!use_chisquared && !use_fisher) ? 
-	    numeric_limits<float>::max() : 0;
-	  Matrix a(!use_chisquared && !use_fisher ? 
-		   motif->const_get_matrix().freqmat() : 
-		   motif->const_get_matrix());
-	  string motif_name = motif->get_accession();
-	  string best_name = null_name;
-	  size_t min_width = a.get_width() - max_overhang;
-	  for (motif_iter j = library.begin(); j != library.end(); ++j)
-	    if (j->get_width() >= min_width) {
-	      Matrix b(j->get_matrix());
-	      if (use_fisher) {
-		float fisher = MatCompMethods::sliding_fishertest(a, b, max_overhang);
-		if (fisher > best_score) {
-		  best_score = fisher;
-		  best_name = j->get_accession();
-		}
-	      }
+        typedef vector<Motif>::iterator motif_iter;
+        for (motif_iter motif = motifs.begin(); motif != motifs.end(); ++motif) {
+          float best_score = (!use_chisquared && !use_fisher) ?
+            numeric_limits<float>::max() : 0;
+          Matrix a(!use_chisquared && !use_fisher ?
+                   motif->const_get_matrix().freqmat() :
+                   motif->const_get_matrix());
+          string motif_name = motif->get_accession();
+          string best_name = null_name;
+          size_t min_width = a.get_width() - max_overhang;
+          for (motif_iter j = library.begin(); j != library.end(); ++j)
+            if (j->get_width() >= min_width) {
+              Matrix b(j->get_matrix());
+              if (use_fisher) {
+                float fisher = MatCompMethods::sliding_fishertest(a, b, max_overhang);
+                if (fisher > best_score) {
+                  best_score = fisher;
+                  best_name = j->get_accession();
+                }
+              }
 #ifdef HAVE_GSL
-	      else if (use_chisquared) {
-		float chi = MatCompMethods::sliding_chisquared(a, b, max_overhang);
-		if (chi > best_score) {
-		  best_score = chi;
-		  best_name = j->get_accession();
-		}
-	      }
-#endif	      
-	      else {
-		b = b.freqmat();
-		float divergence = MatCompMethods::sliding_divergence(a, b, max_overhang);
-		if (divergence < best_score) {
-		  best_score = divergence;
-		  best_name = j->get_accession();
-		}
-	      }
-	    }
-	  outbuffer << motif_name << " " << best_name << " " << best_score << endl;
-	}
+              else if (use_chisquared) {
+                float chi = MatCompMethods::sliding_chisquared(a, b, max_overhang);
+                if (chi > best_score) {
+                  best_score = chi;
+                  best_name = j->get_accession();
+                }
+              }
+#endif
+              else {
+                b = b.freqmat();
+                float divergence = MatCompMethods::sliding_divergence(a, b, max_overhang);
+                if (divergence < best_score) {
+                  best_score = divergence;
+                  best_name = j->get_accession();
+                }
+              }
+            }
+          outbuffer << motif_name << " " << best_name << " " << best_score << endl;
+        }
       }
       else{
-	modules = Module::ReadModuleVector(motifsfile.c_str());
-	for (size_t i = 0; i < modules.size(); ++i) {
-	  for (size_t j = 0; j < modules[i].size(); ++j){
-	    float best_score = (!use_chisquared && !use_fisher) ? 
-	      numeric_limits<float>::max() : 0;
-	    Matrix a = (!use_chisquared && !use_fisher) ? 
-	      modules[i][j].freqmat() : modules[i][j];
-	    string motif_name(modules[i].get_accession() + 
-			      "." + cread::toa(j + 1));
-	    string best_name = null_name;
-	    size_t min_width = a.get_width() - max_overhang;
-	    typedef vector<Motif>::iterator motif_iter;
-	    for (motif_iter k = library.begin(); k != library.end(); ++k)
-	      if (k->get_width() >= min_width){
-		Matrix b(k->get_matrix());
-		if (use_fisher) {
-		  float fisher = MatCompMethods::sliding_fishertest(a, b, max_overhang);
-		  if (fisher > best_score) {
-		    best_score = fisher;
-		    best_name = k->get_accession();
-		  }
-		}
+        modules = Module::ReadModuleVector(motifsfile.c_str());
+        for (size_t i = 0; i < modules.size(); ++i) {
+          for (size_t j = 0; j < modules[i].size(); ++j){
+            float best_score = (!use_chisquared && !use_fisher) ?
+              numeric_limits<float>::max() : 0;
+            Matrix a = (!use_chisquared && !use_fisher) ?
+              modules[i][j].freqmat() : modules[i][j];
+            string motif_name(modules[i].get_accession() +
+                              "." + cread::toa(j + 1));
+            string best_name = null_name;
+            size_t min_width = a.get_width() - max_overhang;
+            typedef vector<Motif>::iterator motif_iter;
+            for (motif_iter k = library.begin(); k != library.end(); ++k)
+              if (k->get_width() >= min_width){
+                Matrix b(k->get_matrix());
+                if (use_fisher) {
+                  float fisher = MatCompMethods::sliding_fishertest(a, b, max_overhang);
+                  if (fisher > best_score) {
+                    best_score = fisher;
+                    best_name = k->get_accession();
+                  }
+                }
 #ifdef HAVE_GSL
-		else if (use_chisquared) {
-		  float chi = MatCompMethods::sliding_chisquared(a, b, max_overhang);
-		  if (chi > best_score) {
-		    best_score = chi;
-		     best_name = k->get_accession();
-		  }
-		}
+                else if (use_chisquared) {
+                  float chi = MatCompMethods::sliding_chisquared(a, b, max_overhang);
+                  if (chi > best_score) {
+                    best_score = chi;
+                     best_name = k->get_accession();
+                  }
+                }
 #endif
-		else {
-		  b = b.freqmat();
-		  float divergence = MatCompMethods::sliding_divergence(a, b, max_overhang);
-		  if (divergence < best_score) {
-		    best_score = divergence;
-		    best_name = k->get_accession();
-		  }
-		}
-	      }
-	    outbuffer << motif_name << " " << best_name << " " << best_score << endl;
-	  }
-	}
+                else {
+                  b = b.freqmat();
+                  float divergence = MatCompMethods::sliding_divergence(a, b, max_overhang);
+                  if (divergence < best_score) {
+                    best_score = divergence;
+                    best_name = k->get_accession();
+                  }
+                }
+              }
+            outbuffer << motif_name << " " << best_name << " " << best_score << endl;
+          }
+        }
       }
       ostream* output = (outfile.c_str()) ? new ofstream(outfile.c_str()) : &cout;
       *output << outbuffer.str();
@@ -581,62 +581,63 @@ int main(int argc, const char **argv) {
       // use annotation mode
       float base_comp[alphabet_size];
       if (base_comp_string.c_str()) {
-	vector<string> parts = cread::split(base_comp_string.c_str(), ",");
-	if (parts.size() != alphabet_size) {
-	  cerr << "ERROR: incorrect base composition format: " 
-	       << base_comp_string.c_str() << endl;
-	  return EXIT_FAILURE;
-	}
-	for (size_t i = 0; i < parts.size(); ++i)
-	  base_comp[i] = std::atof(parts[i].c_str());
+        vector<string> parts = cread::split(base_comp_string.c_str(), ",");
+        if (parts.size() != alphabet_size) {
+          cerr << "ERROR: incorrect base composition format: "
+               << base_comp_string.c_str() << endl;
+          return EXIT_FAILURE;
+        }
+        for (size_t i = 0; i < parts.size(); ++i)
+          base_comp[i] = std::atof(parts[i].c_str());
       }
       else std::fill_n(base_comp, alphabet_size, 1.0/alphabet_size);
-    
+
       vector<Motif> motif_lib = Motif::ReadMotifVector(libfile.c_str());
       vector<Matrix> lib;
       transform(motif_lib.begin(), motif_lib.end(), back_inserter(lib),
-		std::ptr_fun(&get_freqmat));
-    
+                [](const Motif &m) {return get_freqmat(m);});
+      // std::ptr_fun(&get_freqmat));
+
       vector<Motif> motifs;
       vector<Module> modules;
       if (!processing_modules) {
-	vector<vector<row_data> > rows;
-	motifs = Motif::ReadMotifVector(motifsfile.c_str());
-	typedef vector<Motif>::iterator motif_iter;
-	for (motif_iter motif = motifs.begin(); motif != motifs.end(); ++motif){
-	  Matrix a = (!use_chisquared && !use_fisher) ? 
-	    motif->const_get_matrix().freqmat() : motif->const_get_matrix();
-	  vector<match> top_matches;
-	  get_matches(a, motif_lib, top_matches);
-	  add_factors(*motif, motif_lib, top_matches);
-	  rows.push_back(vector<row_data>());
-	  if (alignmentfile.c_str() && !top_matches.empty())
-	    get_alignment_rows(*motif, motif_lib, top_matches, rows.back());
-	}
-	if (alignmentfile.c_str()) write_alignment(rows, motifs);
+        vector<vector<row_data> > rows;
+        motifs = Motif::ReadMotifVector(motifsfile.c_str());
+        typedef vector<Motif>::iterator motif_iter;
+        for (motif_iter motif = motifs.begin(); motif != motifs.end(); ++motif){
+          Matrix a = (!use_chisquared && !use_fisher) ?
+            motif->const_get_matrix().freqmat() : motif->const_get_matrix();
+          vector<match> top_matches;
+          get_matches(a, motif_lib, top_matches);
+          add_factors(*motif, motif_lib, top_matches);
+          rows.push_back(vector<row_data>());
+          if (alignmentfile.c_str() && !top_matches.empty())
+            get_alignment_rows(*motif, motif_lib, top_matches, rows.back());
+        }
+        if (alignmentfile.c_str()) write_alignment(rows, motifs);
       }
       else {
-	// doing modules
-	modules = Module::ReadModuleVector(motifsfile.c_str());
-	for (size_t i = 0; i < modules.size(); ++i) {
-	  vector<vector<match> > top_matches;
-	  for (size_t j = 0; j < modules[i].size(); ++j) {
-	    Matrix a = (!use_chisquared && !use_fisher) ?
-	      modules[i][j].freqmat() : modules[i][j];  
-	    top_matches.push_back(vector<match>());
-	    get_matches(a, motif_lib, top_matches.back());
-	  }
-	  add_factors_module(modules[i], motif_lib, top_matches);
-	}
+        // doing modules
+        modules = Module::ReadModuleVector(motifsfile.c_str());
+        for (size_t i = 0; i < modules.size(); ++i) {
+          vector<vector<match> > top_matches;
+          for (size_t j = 0; j < modules[i].size(); ++j) {
+            Matrix a = (!use_chisquared && !use_fisher) ?
+              modules[i][j].freqmat() : modules[i][j];
+            top_matches.push_back(vector<match>());
+            get_matches(a, motif_lib, top_matches.back());
+          }
+          add_factors_module(modules[i], motif_lib, top_matches);
+        }
       }
-      
+
       ostream* out = (outfile.c_str()) ? new ofstream(outfile.c_str()) : &cout;
       if (processing_modules)
-      	copy(modules.begin(), modules.end(), ostream_iterator<Module>(*out, "\n"));
+        copy(modules.begin(), modules.end(), ostream_iterator<Module>(*out, "\n"));
       else copy(motifs.begin(), motifs.end(), ostream_iterator<Motif>(*out, "\n"));
       if (out != &cout) delete out;
     }
-    
+
   }
   catch (CREADException &e) {
     cerr << "ERROR:\t" << e.what() << endl;
