@@ -19,31 +19,15 @@
 #
 
 all_subdirs=common tools
-lib_subdirs=common
 app_subdirs=tools
 
-# check if a global copy of smithlab_cpp cannot be found and try to
-# use a copy that is in the current directory
-ifndef SMITHLAB_CPP
-  SMITHLAB_CPP=$(abspath $(dir $(MAKEFILE_LIST)))/smithlab_cpp
-  ifeq ("$(wildcard $(SMITHLAB_CPP))","")
-    $(error SMITHLAB_CPP not set and smithlab_cpp not found)
-  endif
-all_subdirs += $(SMITHLAB_CPP)
-lib_subdirs += $(SMITHLAB_CPP)
-endif
-
 all:
-	@for i in $(app_subdirs); do \
-		make -C $${i} SMITHLAB_CPP=$(SMITHLAB_CPP) SRC_ROOT=$(CREAD) OPT=1; \
-	done;
+	@make -C tools SRC_ROOT=$(CREAD) OPT=1
 
 install:
-	@for i in $(app_subdirs); do \
-		make -C $${i} SMITHLAB_CPP=$(SMITHLAB_CPP) SRC_ROOT=$(CREAD) OPT=1 install; \
-	done;
+	@make -C tools SRC_ROOT=$(CREAD) OPT=1 install
 
 clean:
 	@for i in $(all_subdirs); do \
-		make -C $${i} SMITHLAB_CPP=$(SMITHLAB_CPP) SRC_ROOT=$(CREAD) clean; \
+		make -C $${i} SRC_ROOT=$(CREAD) clean; \
 	done;

@@ -22,9 +22,7 @@
 #  along with CREAD; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-ifndef SMITHLAB_CPP
-$(error SMITHLAB_CPP variable undefined)
-endif
+SMITHLAB_CPP = ../smithlab_cpp
 
 PROGS = basecomp bbcomp decoymasker getcontext \
 	formattable joinmotifs motifclass uniqmotifs \

@@ -21,10 +21,10 @@
 CREAD=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 all:
-	@make -C src SMITHLAB_CPP=$(SMITHLAB_CPP) CREAD=$(CREAD) OPT=1
+	@make -C src CREAD=$(CREAD) OPT=1
 
 install:
-	@make -C src SMITHLAB_CPP=$(SMITHLAB_CPP) CREAD=$(CREAD) OPT=1 install
+	@make -C src CREAD=$(CREAD) OPT=1 install
 
 clean:
-	@make -C src SMITHLAB_CPP=$(SMITHLAB_CPP) CREAD=$(CREAD) clean
+	@make -C src CREAD=$(CREAD) clean
