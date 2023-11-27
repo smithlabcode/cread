@@ -1,4 +1,4 @@
-# cread2
+# cread
 
 Software tools for regulatory sequence analysis
 
