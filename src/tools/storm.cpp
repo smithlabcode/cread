@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006 Cold Spring Harbor Laboratory
+ * Copyright (C) 2023 Andrew Smith
  * Authors: Andrew D. Smith, Dustin Schones, Pavel Sumazin and Michael Q. Zhang
  *
  * This file is part of CREAD.
@@ -39,7 +40,6 @@ using std::min;
 using std::cout;
 using std::cerr;
 using std::endl;
-using std::numeric_limits;
 using std::ofstream;
 using std::function;
 using std::ostream;
@@ -49,7 +49,7 @@ using std::pair;
 using std::make_pair;
 using std::copy;
 
-string threshold_label;
+template<typename T> using num_lim = std::numeric_limits<T>;
 
 /* This is the suffix of files that are supposed to be the FASTA files
  * in the directory of sequences to search (assuming the user gives a
@@ -64,7 +64,7 @@ bool VERBOSE = false;
 int buffer_size = 2500000;
 int n_top = 0;
 int core_size = 15;
-float threshold_param = numeric_limits<float>::max();
+float threshold_param = num_lim<float>::max();
 bool functional_depth = false;
 bool p_value = false;
 bool handleties = false;
@@ -219,7 +219,7 @@ QuerySequenceNoPreprocessing(const string& sequence,
   for (size_t i = 0; i < sm.size(); ++i) {
 
     const size_t matwidth = sm[i].get_width();
-    float cutoff = -numeric_limits<float>::max();
+    float cutoff = -num_lim<float>::max();
     Hit_queue hq;
     const size_t lim = std::max(static_cast<int>(sequence.length()) -
                                 static_cast<int>(matwidth) + 1, 0);
@@ -373,7 +373,7 @@ QuerySequenceSetNoPreprocessing(const vector<string>& sequences,
                                 vector<vector<Hit> >& occ, size_t n_top) {
   vector<Hit_queue> hq(sm.size());
   vector<float> cutoff(sm.size());
-  fill_n(cutoff.begin(), sm.size(), -numeric_limits<float>::max());
+  fill_n(cutoff.begin(), sm.size(), -num_lim<float>::max());
   for (size_t s = 0; s < sequences.size(); ++s) {
     vector<int> helper(sequences[s].length());
     transform(sequences[s].begin(), sequences[s].end(),
@@ -563,10 +563,11 @@ QuerySequenceSetByCount(const vector<string>& sequences,
 
 
 void
-get_motif_thresholds(vector<float>& threshold, vector<Motif>& motifs) {
-  if (threshold_param == numeric_limits<float>::max() && threshold_label.c_str())
-    for (vector<Motif>::iterator i = motifs.begin(); i != motifs.end(); ++i) {
-      string threshold_str(i->get_attribute(threshold_label.c_str()));
+get_motif_thresholds(const string &threshold_label,
+                     vector<float> &threshold, vector<Motif>& motifs) {
+  if (threshold_param == num_lim<float>::max() && !threshold_label.empty())
+    for (const auto &motif: motifs) {
+      string threshold_str(motif.get_attribute(threshold_label.c_str()));
       if (!threshold_str.empty())
         threshold.push_back(atof(threshold_str.c_str()));
       // TODO: better handle the case where threshold label doesn't exist
@@ -576,7 +577,7 @@ get_motif_thresholds(vector<float>& threshold, vector<Motif>& motifs) {
         exit(EXIT_FAILURE);
       }
     }
-  else std::fill_n(back_inserter(threshold), motifs.size(), threshold_param);
+  else std::fill_n(back_inserter(threshold), size(motifs), threshold_param);
 }
 
 void
@@ -961,6 +962,7 @@ int main(int argc, const char **argv) {
   string motif_file;        // file containing the motifs
   string base_comp_str;     // string of base composition
   string word_table;
+  string threshold_label;
 
   try {
 
@@ -1087,8 +1089,8 @@ int main(int argc, const char **argv) {
 
     // get the score cutoff associated with each motif
     vector<float> threshold;
-    if (threshold_param != numeric_limits<float>::max() || !threshold_label.empty())
-      get_motif_thresholds(threshold, motifs);
+    if (threshold_param != num_lim<float>::max() || !threshold_label.empty())
+      get_motif_thresholds(threshold_label, threshold, motifs);
 
     // extract the matrix from each motif
     vector<Matrix> matrices;
