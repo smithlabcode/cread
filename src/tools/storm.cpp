@@ -954,9 +954,9 @@ file_progress_string(const string& filename,
 
 int main(int argc, const char **argv) {
 
-/* INPUT PARAMETERS */
+  /* INPUT PARAMETERS */
   string seqfile;           // file containing foreground
-                                     // sequences
+  // sequences
   string outfile;           // file in which to print output
   string motif_file;        // file containing the motifs
   string base_comp_str;     // string of base composition
@@ -967,44 +967,44 @@ int main(int argc, const char **argv) {
 
     /***************** GET COMMAND LINE ARGUMENTS *******************/
     OptionParser opt_parse(strip_path(argv[0]),
-                "evaluates cross-species conervation of motif occurrences",
-                                      "[Motif]");
+                           "evaluates cross-species conervation of motif occurrences",
+                           "[Motif]");
     opt_parse.add_opt("output", 'o', "Name of output file (default: stdout)",
-                       false, outfile);
+                      false, outfile);
     opt_parse.add_opt("fasta-suffix", '\0', "Suffix for FASTA files;"
                       " assumes input is directory", false, fasta_suffix);
     opt_parse.add_opt("verbose", 'v', "Print extra info to standard error",
-                       false, VERBOSE);
+                      false, VERBOSE);
     opt_parse.add_opt("buffer-size", '\0', "Size for input buffer",
-                       false, buffer_size);
+                      false, buffer_size);
     opt_parse.add_opt("hit-count", 'n', "Find this many top occurrences",
-                       false, n_top);
+                      false, n_top);
     opt_parse.add_opt("sequences", 's', "File of sequences in which to search",
-                       false, seqfile);
+                      false, seqfile);
     opt_parse.add_opt("by-sequence", 'q', "Top matchs are per sequences (needs -n)",
-                       false, bysequence);
+                      false, bysequence);
     opt_parse.add_opt("handle-ties", 'h', "Report equivalent hits in case of ties",
-                       false, handleties);
+                      false, handleties);
     opt_parse.add_opt("ax-score", 'm', "Alias for the parameters: \"-hq -n 1\"",
-                       false, max_score);
+                      false, max_score);
     opt_parse.add_opt("dme-scoring", 'd', "Use scoring matrix used by dme program",
-                       false, dme_matrix);
+                      false, dme_matrix);
     opt_parse.add_opt("no-preprocessing", 'N', "No suffix tree preprocessing of sequences",
-                       false, no_preprocessing);
+                      false, no_preprocessing);
     opt_parse.add_opt("single-strand", 'S', "Search only one strand",
-                       false, single_strand);
+                      false, single_strand);
     opt_parse.add_opt("base-comp", 'C', "comma separated base freqs (order:A,C,G,T)",
-                       false, base_comp_str);
+                      false, base_comp_str);
     opt_parse.add_opt("threshold", 't', "threshold score defining occurrences",
-                       false, threshold_param);
+                      false, threshold_param);
     opt_parse.add_opt("func-depth", 'f',"thresholds given as functional depths",
-                       false, functional_depth);
+                      false, functional_depth);
     opt_parse.add_opt("p-value", 'p', "threshold given as p-values",
-                       false, p_value);
+                      false, p_value);
     opt_parse.add_opt("core-size", 'c', "core size for calculating p-values",
-                       false, core_size);
+                      false, core_size);
     opt_parse.add_opt("label", 'l', "thresholds specifieds as motif attribute",
-                       false, threshold_label);
+                      false, threshold_label);
     opt_parse.add_opt("word-table", 'H', "word-table file", false, word_table);
 
     vector<string> leftover_args;
