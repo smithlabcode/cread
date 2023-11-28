@@ -132,7 +132,7 @@ struct Hit {
     return ss.str();
   }
 };
-typedef priority_queue<Hit, vector<Hit>, greater<Hit> > Hit_queue;
+typedef priority_queue<Hit, vector<Hit>, greater<Hit>> Hit_queue;
 
 
 void AddDirection(const vector<pos_score>& ps,
@@ -176,14 +176,13 @@ match_matrix(const ScoringMatrix &sm, const int* offset, const size_t width) {
 void
 QuerySequenceNoPreprocessing(const string sequence, const vector<ScoringMatrix>& sm,
                              const vector<ScoringMatrix>& smrc,
-                             vector<vector<Hit> >& occ,
+                             vector<vector<Hit>>& occ,
                              const vector<float>& threshold, size_t sn) {
 //  typedef pair<pair<size_t, size_t>, float> seq_pos_score;
 //  typedef pair<size_t, size_t> seq_pos;
   vector<int> helper(sequence.length());
-  transform(sequence.begin(), sequence.end(),
-            helper.begin(), &base2int);
-  if (occ.empty()) occ = vector<vector<Hit> >(sm.size());
+  transform(cbegin(sequence), cend(sequence), begin(helper), &base2int);
+  if (occ.empty()) occ = vector<vector<Hit>>(sm.size());
   for (size_t i = 0; i < sm.size(); ++i) {
     const size_t matwidth = sm[i].get_width();
     const size_t lim = std::max(static_cast<int>(sequence.length()) -
@@ -210,12 +209,12 @@ void
 QuerySequenceNoPreprocessing(const string& sequence,
                              const vector<ScoringMatrix>& sm,
                              const vector<ScoringMatrix>& smrc,
-                             vector<vector<Hit> >& occ,
+                             vector<vector<Hit>>& occ,
                              size_t n_top, size_t sn) {
 //  typedef pair<pair<size_t, size_t>, float> seq_pos_score;
   vector<int> helper(sequence.length());
-  transform(sequence.begin(), sequence.end(),
-            helper.begin(), &base2int);
+  transform(begin(sequence), end(sequence),
+            begin(helper), &base2int);
   for (size_t i = 0; i < sm.size(); ++i) {
 
     const size_t matwidth = sm[i].get_width();
@@ -253,7 +252,7 @@ QuerySequenceNoPreprocessing(const string& sequence,
   }
 }
 
-typedef priority_queue<float, vector<float>, greater<float> > greater_pq;
+typedef priority_queue<float, vector<float>, greater<float>> greater_pq;
 inline void
 update_tied_queue(float value, greater_pq &q, size_t max_size) {
   if (value >= q.top() || q.size() < max_size) {
@@ -267,8 +266,8 @@ void
 QuerySequenceSetNoPreprocessingTies(const vector<string>& sequences,
                                     const vector<ScoringMatrix>& sm,
                                     const vector<ScoringMatrix>& smrc,
-                                    vector<vector<Hit> >& occ, size_t n_top) {
-  vector<vector<int> > helpers(sequences.size());
+                                    vector<vector<Hit>>& occ, size_t n_top) {
+  vector<vector<int>> helpers(sequences.size());
   for (size_t i = 0; i < sequences.size(); ++i)
     transform(sequences[i].begin(), sequences[i].end(),
               back_inserter(helpers[i]), &base2int);
@@ -323,11 +322,11 @@ void
 QuerySequenceNoPreprocessingTies(const string& sequence,
                                  const vector<ScoringMatrix>& sm,
                                  const vector<ScoringMatrix>& smrc,
-                                 vector<vector<Hit> >& occ,
+                                 vector<vector<Hit>>& occ,
                                  size_t n_top, size_t sn) {
   vector<int> helper(sequence.length());
-  transform(sequence.begin(), sequence.end(),
-            helper.begin(), &base2int);
+  transform(begin(sequence), end(sequence),
+            begin(helper), &base2int);
   for (size_t i = 0; i < sm.size(); ++i) {
     size_t matwidth = sm[i].get_width();
     // Find the k-th top score
@@ -370,14 +369,14 @@ void
 QuerySequenceSetNoPreprocessing(const vector<string>& sequences,
                                 const vector<ScoringMatrix>& sm,
                                 const vector<ScoringMatrix>& smrc,
-                                vector<vector<Hit> >& occ, size_t n_top) {
+                                vector<vector<Hit>>& occ, size_t n_top) {
   vector<Hit_queue> hq(sm.size());
   vector<float> cutoff(sm.size());
-  fill_n(cutoff.begin(), sm.size(), -num_lim<float>::max());
+  fill_n(begin(cutoff), sm.size(), -num_lim<float>::max());
   for (size_t s = 0; s < sequences.size(); ++s) {
     vector<int> helper(sequences[s].length());
     transform(sequences[s].begin(), sequences[s].end(),
-              helper.begin(), &base2int);
+              begin(helper), &base2int);
     for (size_t i = 0; i < sm.size(); ++i) {
       const size_t matwidth = sm[i].get_width();
       const size_t lim = std::max(static_cast<int>(sequences[s].length()) -
@@ -420,7 +419,7 @@ void
 QuerySequenceByThreshold(const string& sequence,
                          const vector<ScoringMatrix>& sm,
                          const vector<ScoringMatrix>& smrc,
-                         vector<vector<Hit> >& occ,
+                         vector<vector<Hit>>& occ,
                          vector<float>& threshold, size_t sn) {
   if (no_preprocessing)
     QuerySequenceNoPreprocessing(sequence, sm, smrc, occ, threshold, sn);
@@ -437,8 +436,8 @@ QuerySequenceByThreshold(const string& sequence,
           tree.scores_greater_indices(smrc[i], threshold[i], temp_hits);
           AddDirectionAndSequence(temp_hits, hits, 'n', sn);
         }
-        sort(hits.begin(), hits.end(), function(&Hit::seq_pos_order));
-        copy(hits.begin(), hits.end(), back_inserter(occ[i]));
+        sort(begin(hits), end(hits), function(&Hit::seq_pos_order));
+        copy(begin(hits), end(hits), back_inserter(occ[i]));
       }
     }
   }
@@ -453,7 +452,7 @@ void
 QuerySequenceByCount(const string& sequence,
                      const vector<ScoringMatrix>& sm,
                      const vector<ScoringMatrix>& smrc,
-                     vector<vector<Hit> >& occ,
+                     vector<vector<Hit>>& occ,
                      size_t n_top, size_t sn) {
   if (no_preprocessing)
     if (handleties)
@@ -475,7 +474,7 @@ QuerySequenceByCount(const string& sequence,
           AddDirectionAndSequence(temp_hits, hits, 'n', sn);
         }
 
-        sort(hits.begin(), hits.end(), greater<Hit>());
+        sort(begin(hits), end(hits), greater<Hit>());
 
         if (handleties) {
           size_t index = min(n_top - 1, hits.size() - 1);
@@ -491,14 +490,14 @@ QuerySequenceByCount(const string& sequence,
             tree.scores_greater_indices(smrc[i], threshold, temp_hits);
             AddDirectionAndSequence(temp_hits, hits, 'n', sn);
           }
-          sort(hits.begin(), hits.end(), greater<Hit>());
-          sort(hits.begin(), hits.end(), function(&Hit::seq_pos_order));
-          copy(hits.begin(), hits.end(), back_inserter(occ[i]));
+          sort(begin(hits), end(hits), greater<Hit>());
+          sort(begin(hits), end(hits), function(&Hit::seq_pos_order));
+          copy(begin(hits), end(hits), back_inserter(occ[i]));
         }
         else {
-          sort(hits.begin(), hits.begin() + min(n_top, hits.size()),
+          sort(begin(hits), begin(hits) + min(n_top, hits.size()),
                function(&Hit::seq_pos_order));
-          copy(hits.begin(), hits.begin() + min(n_top, hits.size()),
+          copy(begin(hits), begin(hits) + min(n_top, hits.size()),
                back_inserter(occ[i]));
         }
       }
@@ -512,7 +511,7 @@ void
 QuerySequenceSetByCount(const vector<string>& sequences,
                         const vector<ScoringMatrix>& sm,
                         const vector<ScoringMatrix>& smrc,
-                        vector<vector<Hit> >& occ,
+                        vector<vector<Hit>>& occ,
                         size_t n_top) {
   if (no_preprocessing)
     if (handleties)
@@ -532,7 +531,7 @@ QuerySequenceSetByCount(const vector<string>& sequences,
           tree.top_scores_indices(temp_hits, n_top, smrc[i]);
           AddDirection(temp_hits, hits, 'n');
         }
-        sort(hits.begin(), hits.end(), greater<Hit>());
+        sort(begin(hits), end(hits), greater<Hit>());
         if (handleties) {
           const float threshold = ((n_top < hits.size()) ?
                                    hits[n_top - 1].score :
@@ -546,14 +545,14 @@ QuerySequenceSetByCount(const vector<string>& sequences,
             tree.scores_greater_indices(temp_hits, threshold, smrc[i]);
             AddDirection(temp_hits, hits, 'n');
           }
-          sort(hits.begin(), hits.end(), greater<Hit>());
-          sort(hits.begin(), hits.end(), function(&Hit::seq_pos_order));
-          copy(hits.begin(), hits.end(), back_inserter(occ[i]));
+          sort(begin(hits), end(hits), greater<Hit>());
+          sort(begin(hits), end(hits), function(&Hit::seq_pos_order));
+          copy(begin(hits), end(hits), back_inserter(occ[i]));
         }
         else {
-          sort(hits.begin(), hits.begin() + min(n_top, hits.size()),
+          sort(begin(hits), begin(hits) + min(n_top, hits.size()),
                function(&Hit::seq_pos_order));
-          copy(hits.begin(), hits.begin() + min(n_top, hits.size()),
+          copy(begin(hits), begin(hits) + min(n_top, hits.size()),
                back_inserter(occ[i]));
         }
       }
@@ -587,8 +586,8 @@ get_scoring_matrices(const vector<Matrix> &matrices,
                      vector<ScoringMatrix> &smrc,
                      size_t &max_width) {
   max_width = 0;
-  vector<Matrix>::const_iterator i(matrices.begin());
-  for (; i != matrices.end(); ++i) {
+  vector<Matrix>::const_iterator i(begin(matrices));
+  for (; i != end(matrices); ++i) {
     max_width = std::max(max_width, i->get_width());
     if (!i->is_count_mat() || dme_matrix)
       sm.push_back(ScoringMatrix(*i, base_comp));
@@ -667,7 +666,7 @@ determine_which_to_keep(const vector<NameScoreIndex>& nm_scr_idx,
 
 /* Remove all but the top k sites for a motif in each sequence. */
 void
-top_k_per_sequence(vector<vector<MotifSite> >& sites,
+top_k_per_sequence(vector<vector<MotifSite>>& sites,
                    const size_t k_to_keep, const bool allow_ties) {
   // iterate over each motif
   for (size_t i = 0; i < sites.size(); ++i) {
@@ -676,7 +675,7 @@ top_k_per_sequence(vector<vector<MotifSite> >& sites,
     for (size_t j = 0; j < sites[i].size(); ++j)
       nm_scr_idx[j] = NameScoreIndex(sites[i][j].get_seq_name(),
                                      sites[i][j].get_score(), j);
-    sort(nm_scr_idx.begin(), nm_scr_idx.end(),
+    sort(begin(nm_scr_idx), end(nm_scr_idx),
          greater<NameScoreIndex>());
 
     // vector of indices of sites that we will keep
@@ -704,7 +703,7 @@ struct ScoreIndex {
   bool operator>(const ScoreIndex& rhs) const {return score > rhs.score;}
 };
 void
-top_k_overall(vector<vector<MotifSite> >& sites,
+top_k_overall(vector<vector<MotifSite>>& sites,
               const size_t k_to_keep, const bool allow_ties) {
   // iterate over each motif
   for (size_t i = 0; i < sites.size(); ++i) {
@@ -712,7 +711,7 @@ top_k_overall(vector<vector<MotifSite> >& sites,
     vector<ScoreIndex> scr_idx(sites[i].size());
     for (size_t j = 0; j < sites[i].size(); ++j)
       scr_idx[j] = ScoreIndex(sites[i][j].get_score(), j);
-    sort(scr_idx.begin(), scr_idx.end(), greater<ScoreIndex>());
+    sort(begin(scr_idx), end(scr_idx), greater<ScoreIndex>());
     // get a new vector including only the top k hits
     vector<MotifSite> temp_sites;
     const size_t loop_lim = min(k_to_keep, scr_idx.size());
@@ -740,7 +739,7 @@ struct CoreScoreMat {
   size_t downstream;
   CoreScoreMat(const Matrix& mat, const ScoringMatrix& sm,
                const size_t core_size, const WordTable &wt);
-  void convert_score(vector<vector<MotifSite> >& sites,
+  void convert_score(vector<vector<MotifSite>>& sites,
                      const vector<ScoringMatrix>& sm,
                      const bool convert_to_fd,
                      const bool convert_to_pval,
@@ -755,8 +754,8 @@ CoreScoreMat::CoreScoreMat(const Matrix& matrix,
   vector<float> info_profile(wt.info_profile(matrix));
   float max_info = 0.0;
   for (size_t i = 0; i <= matrix.get_width() - core_size; ++i) {
-    const float sum = accumulate(info_profile.begin() + i,
-                                 info_profile.begin() + i + core_size, 0.0);
+    const float sum = accumulate(begin(info_profile) + i,
+                                 begin(info_profile) + i + core_size, 0.0);
     if (sum > max_info) {
       max_info = sum;
       upstream = i;
@@ -784,7 +783,7 @@ CoreScoreMat::CoreScoreMat(const Matrix& matrix,
 
 
 void
-convert_scores_to_fds(vector<vector<MotifSite> >& sites,
+convert_scores_to_fds(vector<vector<MotifSite>>& sites,
                       const vector<ScoringMatrix>& sm) {
   for (size_t i = 0; i < sites.size(); ++i)
     for (size_t j = 0; j < sites[i].size(); ++j)
@@ -792,12 +791,12 @@ convert_scores_to_fds(vector<vector<MotifSite> >& sites,
 }
 
 void
-update_motif_sites(const vector<vector<Hit> >& occ,
+update_motif_sites(const vector<vector<Hit>>& occ,
                    const vector<string>& sequences,
                    const vector<string>& seqnames,
                    const vector<size_t>& full_motif_widths,
                    const size_t first_seq_offset,
-                   vector<vector<MotifSite> >& sites) {
+                   vector<vector<MotifSite>>& sites) {
   typedef vector<Hit>::const_iterator hititer;
   for (size_t i = 0; i < sites.size(); ++i) {
     for (hititer j = occ[i].begin(); j != occ[i].end(); ++j) {
@@ -820,7 +819,7 @@ update_motif_sites(const vector<vector<Hit> >& occ,
  * much quicker and easier, and should be done first.
  */
 // void
-// convert_scores_to_pvals(vector<vector<MotifSite> >& sites,
+// convert_scores_to_pvals(vector<vector<MotifSite>>& sites,
 //                         const WordTable& wt,
 //                         const vector<CoreScoreMat>& cores) {
 //   for (size_t i = 0; i < sites.size(); ++i) {
@@ -831,7 +830,7 @@ update_motif_sites(const vector<vector<Hit> >& occ,
 //     std::map<float, float> cached_pvals;
 //     for (size_t j = 0; j < sites[i].size(); ++j) {
 //       std::map<float, float>::iterator k(cached_pvals.find(sites[i][j].get_score()));
-//       if (k == cached_pvals.end()) {
+//       if (k == end(cached_pvals)) {
 //         float pval = wt.cutoff2pval(sites[i][j].get_score(),
 //                                     cores[i].mat, cores[i].sm,
 //                                     !single_strand);
@@ -849,13 +848,13 @@ update_motif_sites(const vector<vector<Hit> >& occ,
 
 
 void
-update_motif_sites(const vector<vector<Hit> >& occ,
+update_motif_sites(const vector<vector<Hit>>& occ,
                    const vector<string>& sequences,
                    const vector<string>& seqnames,
                    const vector<size_t>& widths,
                    const size_t first_seq_offset,
                    const vector<CoreScoreMat>& cores,
-                   vector<vector<MotifSite> >& sites) {
+                   vector<vector<MotifSite>>& sites) {
   typedef vector<Hit>::const_iterator hititer;
   for (size_t i = 0; i < sites.size(); ++i) {
     const size_t downstream = cores[i].downstream;
@@ -898,22 +897,22 @@ struct MotifSitePtrEqual {
 };
 void
 remove_duplicate_sites(const string progress_prefix,
-                       vector<vector<MotifSite> >& sites) {
+                       vector<vector<MotifSite>>& sites) {
   for (size_t i = 0; i < sites.size(); ++i) {
     if (VERBOSE)
       cerr << "\r" << progress_prefix << "\t"
            << static_cast<size_t>((100.0*i)/sites.size()) << "%";
     vector<MotifSite*> site_ptrs(sites[i].size());
     transform(sites[i].begin(), sites[i].end(),
-              site_ptrs.begin(), function(get_ptr));
-    sort(site_ptrs.begin(), site_ptrs.end(), MotifSitePtrGreaterScore());
-    sort(site_ptrs.begin(), site_ptrs.end(), MotifSitePtrLess());
-    vector<MotifSite*>::iterator j = unique(site_ptrs.begin(),
-                                            site_ptrs.end(),
+              begin(site_ptrs), function(get_ptr));
+    sort(begin(site_ptrs), end(site_ptrs), MotifSitePtrGreaterScore());
+    sort(begin(site_ptrs), end(site_ptrs), MotifSitePtrLess());
+    vector<MotifSite*>::iterator j = unique(begin(site_ptrs),
+                                            end(site_ptrs),
                                             MotifSitePtrEqual());
-    site_ptrs.erase(j, site_ptrs.end());
+    site_ptrs.erase(j, end(site_ptrs));
     vector<MotifSite> site_objs;
-    transform(site_ptrs.begin(), site_ptrs.end(),
+    transform(begin(site_ptrs), end(site_ptrs),
               back_inserter(site_objs), function(get_obj));
     sites[i].swap(site_objs);
   }
@@ -1053,7 +1052,7 @@ int main(int argc, const char **argv) {
     if (!word_table.empty()) { // base comp from WordTable (and read in hit table)
       wt = WordTable::ReadWordTable(word_table.c_str());
       vector<float> bc = wt.extract_base_comp();
-      copy(bc.begin(), bc.end(), base_comp.begin());
+      copy(begin(bc), end(bc), begin(base_comp));
     }
     else{ // no WordTable
       if (!base_comp_str.empty()) // base comp from command line
@@ -1062,7 +1061,7 @@ int main(int argc, const char **argv) {
         FastaFile::base_comp_from_files(seqfiles, base_comp);
       if (VERBOSE) {
         cerr << "base comp: ";
-        copy(base_comp.begin(), base_comp.end() - 1,
+        copy(begin(base_comp), end(base_comp) - 1,
              ostream_iterator<float>(cerr, ","));
         cerr << base_comp.back() << endl;
       }
@@ -1094,12 +1093,12 @@ int main(int argc, const char **argv) {
 
     // extract the matrix from each motif
     vector<Matrix> matrices;
-    transform(motifs.begin(), motifs.end(), back_inserter(matrices),
+    transform(begin(motifs), end(motifs), back_inserter(matrices),
               mem_fn(&Motif::get_matrix));
 
     // get a vector of motif widths
     vector<size_t> full_motif_widths;
-    transform(motifs.begin(), motifs.end(), back_inserter(full_motif_widths),
+    transform(begin(motifs), end(motifs), back_inserter(full_motif_widths),
               mem_fn(&Motif::get_width));
 
     // make vector of scoring matrices (and their reverse complements
@@ -1161,14 +1160,14 @@ int main(int argc, const char **argv) {
 
     // erase all sites in the motifs -- we only want the new ones
     // and memory will grow, so lets delete them now instead of later
-    for_each(motifs.begin(), motifs.end(), mem_fn(&Motif::clear_sites));
+    for_each(begin(motifs), end(motifs), mem_fn(&Motif::clear_sites));
 
     // The 'sites' vector is where the new sites will be stored as
     // they are obtained. It would be better not to have to store full
     // sites, and only the 'Hit' objects, but converting them to sites
     // later would not work because the actual sequence are needed,
     // and they might not still be available.
-    vector<vector<MotifSite> > sites(motifs.size());
+    vector<vector<MotifSite>> sites(motifs.size());
 
     // The variable below keeps track of how much of the total amount
     // of sequence (which might be divided across files) has been
@@ -1205,7 +1204,7 @@ int main(int argc, const char **argv) {
          * vector is for motifs, inner vector is for occurrences of
          * that motif
          */
-        vector<vector<Hit> > occ(sm.size());
+        vector<vector<Hit>> occ(sm.size());
 
         /* This is where we decide which type of search we want, and
          * call the appropriate function
@@ -1289,9 +1288,10 @@ int main(int argc, const char **argv) {
       cerr << "\t" << "done" << endl;
 
     // output the motifs (which have updated binding sites)
-    ostream* out = (!outfile.empty()) ? new ofstream(outfile.c_str()) : &cout;
-    copy(motifs.begin(), motifs.end(), ostream_iterator<Motif>(*out, "\n"));
-    if (out != &cout) delete out;
+    std::ofstream of;
+    if (!outfile.empty()) of.open(outfile);
+    std::ostream out(outfile.empty() ? std::cout.rdbuf() : of.rdbuf());
+    copy(cbegin(motifs), cend(motifs), ostream_iterator<Motif>(out, "\n"));
   }
   catch (CREADException &excpt) {
     cerr << "ERROR:\t" << excpt.what() << endl;
