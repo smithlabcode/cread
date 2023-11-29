@@ -325,7 +325,7 @@ get_relative_errorrate_quantiles_corrected(const vector<vector<float> > &fgmax,
       for (size_t k = 0; k < bgsize; ++k)
         tmp_max[fgsize + k][j] = bgmax[j][k];
     }
-    random_shuffle(tmp_max.begin(), tmp_max.end());
+    random_shuffle(begin(tmp_max), end(tmp_max));
 
     for (size_t j = 0; j < n_motifs; ++j) {
       for (size_t k = 0; k < fgsize; ++k)
@@ -349,7 +349,7 @@ get_relative_errorrate_quantiles_corrected(const vector<vector<float> > &fgmax,
   }
   if (VERBOSE)
     cerr << "\r" << progress_prefix << "\t100%" << endl;
-  sort(quantiles.begin(), quantiles.end());
+  sort(begin(quantiles), end(quantiles));
 }
 
 void
@@ -381,7 +381,7 @@ get_relative_errorrate_quantiles(const vector<vector<float> > &fgmax,
       for (size_t k = 0; k < bgsize; ++k)
         tmp_max[fgsize + k][j] = bgmax[j][k];
     }
-    random_shuffle(tmp_max.begin(), tmp_max.end());
+    random_shuffle(begin(tmp_max), end(tmp_max));
 
     for (size_t j = 0; j < n_motifs; ++j) {
       for (size_t k = 0; k < fgsize; ++k)
@@ -408,20 +408,20 @@ get_relative_errorrate_quantiles(const vector<vector<float> > &fgmax,
 void
 set_relerr_pvalue(const vector<float> &quantiles, Motif &motif) {
   const float relerr = atof(motif.get_attribute(relerr_label).c_str());
-  vector<float>::const_iterator i = upper_bound(quantiles.begin(),
-                                                quantiles.end(), relerr);
+  vector<float>::const_iterator i = upper_bound(begin(quantiles),
+                                                end(quantiles), relerr);
   motif.set_attribute(relerr_pval_label,
-                      static_cast<double>(i - quantiles.begin())/
+                      static_cast<double>(i - begin(quantiles))/
                                                   quantiles.size());
 }
 
 void
 set_err_pvalue(const vector<float> &quantiles, Motif &motif) {
   const float err = atof(motif.get_attribute(err_label).c_str());
-  vector<float>::const_iterator i = upper_bound(quantiles.begin(),
-                                                quantiles.end(), err);
+  vector<float>::const_iterator i = upper_bound(begin(quantiles),
+                                                end(quantiles), err);
   motif.set_attribute(err_pval_label,
-                      static_cast<double>(i - quantiles.begin())/
+                      static_cast<double>(i - begin(quantiles))/
                                                   quantiles.size());
 }
 
@@ -557,13 +557,13 @@ int main(int argc, const char *argv[]) {
     vector<Motif> motifs(Motif::ReadMotifVector(motifs_file_name.c_str()));
 
     size_t max_motif_width = 0;
-    for (vector<Motif>::iterator i = motifs.begin(); i != motifs.end(); ++i)
+    for (vector<Motif>::iterator i = begin(motifs); i != end(motifs); ++i)
       max_motif_width = std::max(max_motif_width, i->get_width());
 
     // MAKE A VECTOR OF SCORING MATRICES (AND REVERSE COMPLEMENT
     // MATRICES IF NECESSARY)
     vector<ScoringMatrix> sm, smrc;
-    for (vector<Motif>::iterator i = motifs.begin(); i != motifs.end(); ++i) {
+    for (vector<Motif>::iterator i = begin(motifs); i != end(motifs); ++i) {
       if (!i->get_matrix().is_count_mat())
         sm.push_back(ScoringMatrix(i->get_matrix().freqmat(), base_comp));
       else
@@ -687,12 +687,12 @@ int main(int argc, const char *argv[]) {
     }
     if (!key.empty()){
       PatternOrder po(key.c_str(), reverse_order, numeric_sort_order);
-      std::stable_sort(motifs.begin(), motifs.end(), po);
+      std::stable_sort(begin(motifs), end(motifs), po);
 
       if (!cutoff.empty()) {
         PatternCutoff pc(key.c_str(), cutoff.c_str(), !reverse_order, numeric_sort_order);
-        motifs.erase(std::find_if(motifs.begin(), motifs.end(), pc),
-                       motifs.end());
+        motifs.erase(std::find_if(begin(motifs), end(motifs), pc),
+                       end(motifs));
       }
       //if (assign_rank) AssignRanks(motifs, key);
     }
@@ -701,7 +701,7 @@ int main(int argc, const char *argv[]) {
       motifs.size() : static_cast<size_t>(max_patterns_to_output_param);
     // OUTPUT THE UPDATED MOTIFS
     ostream* output = ((!outfile.empty()) ? new ofstream(outfile.c_str()) : &cout);
-    //copy(motifs.begin(), motifs.end(), ostream_iterator<Motif>(*output, "\n"));
+    //copy(begin(motifs), end(motifs), ostream_iterator<Motif>(*output, "\n"));
     for (size_t i = 0; i < max_patterns_to_output; ++i)
       *output << (motifs[i]) << endl;
     if (output != &cout) delete output;

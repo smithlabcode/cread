@@ -90,7 +90,7 @@ int main(int argc, const char *argv[]) {
 
     vector<Motif> motifs = Motif::ReadMotifVector(motifsfile.c_str());
     vector<Matrix> matrix, rcmatrix;
-    for (vector<Motif>::iterator i = motifs.begin(); i != motifs.end(); ++i) {
+    for (vector<Motif>::iterator i = begin(motifs); i != end(motifs); ++i) {
       matrix.push_back(i->const_get_matrix().freqmat());
       rcmatrix.push_back(matrix.back().revcomp());
     }
@@ -128,10 +128,10 @@ int main(int argc, const char *argv[]) {
       rcmatrix.push_back(matrix.back().revcomp());
       // Erase the motifs that were combined from the list to be
       // combined
-      matrix.erase(matrix.begin() + matrix2);
-      matrix.erase(matrix.begin() + matrix1);
-      rcmatrix.erase(rcmatrix.begin() + matrix2);
-      rcmatrix.erase(rcmatrix.begin() + matrix1);
+      matrix.erase(begin(matrix) + matrix2);
+      matrix.erase(begin(matrix) + matrix1);
+      rcmatrix.erase(begin(rcmatrix) + matrix2);
+      rcmatrix.erase(begin(rcmatrix) + matrix1);
     }
     vector<Motif> newmotifs;
     for (size_t i = 0; i < matrix.size(); ++i)
@@ -139,7 +139,7 @@ int main(int argc, const char *argv[]) {
     
     // output the new motifs
     ostream* output = (outfile.c_str()) ? new ofstream(outfile.c_str()) : &cout;
-    copy(newmotifs.begin(), newmotifs.end(), 
+    copy(begin(newmotifs), end(newmotifs), 
 	 ostream_iterator<Motif>(*output, "\n"));
     if (output != &cout) delete output;
   }

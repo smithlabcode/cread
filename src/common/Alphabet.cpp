@@ -104,9 +104,9 @@ void
 get_base_comp(const vector<string>& sequences, float *base_comp) {
   std::fill(base_comp, base_comp + alphabet_size, 0.0);
   float total = 0;
-  for (vector<string>::const_iterator i = sequences.begin();
-       i != sequences.end(); ++i)
-    for (string::const_iterator j = i->begin(); j != i->end(); ++j)
+  for (vector<string>::const_iterator i = begin(sequences);
+       i != end(sequences); ++i)
+    for (string::const_iterator j = begin(*i); j != end(*i); ++j)
       if (valid_base(*j)) {
         base_comp[base2int(*j)]++;
         total++;
@@ -119,15 +119,15 @@ get_base_comp(const vector<string>& sequences, float *base_comp) {
 void
 get_base_comp(const vector<string>& sequences, vector<float>& base_comp) {
   vector<size_t> count(alphabet_size, 0);
-  for (vector<string>::const_iterator i = sequences.begin();
-       i != sequences.end(); ++i)
-    for (string::const_iterator j = i->begin(); j != i->end(); ++j)
+  for (vector<string>::const_iterator i = begin(sequences);
+       i != end(sequences); ++i)
+    for (string::const_iterator j = begin(*i); j != end(*i); ++j)
       if (valid_base(*j)) {
         count[base2int(*j)]++;
       }
-  const float total = std::accumulate(count.begin(), count.end(), 0.0);
+  const float total = std::accumulate(begin(count), end(count), 0.0);
   base_comp.clear();
-  transform(count.begin(), count.end(), back_inserter(base_comp),
+  transform(begin(count), end(count), back_inserter(base_comp),
             std::bind(std::divides<float>(), std::placeholders::_1, total));
 }
 
@@ -135,15 +135,15 @@ get_base_comp(const vector<string>& sequences, vector<float>& base_comp) {
 void
 get_base_comp(const vector<string>& sequences, vector<double>& base_comp) {
   vector<size_t> count(alphabet_size, 0);
-  for (vector<string>::const_iterator i = sequences.begin();
-       i != sequences.end(); ++i)
-    for (string::const_iterator j = i->begin(); j != i->end(); ++j)
+  for (vector<string>::const_iterator i = begin(sequences);
+       i != end(sequences); ++i)
+    for (string::const_iterator j = begin(*i); j != end(*i); ++j)
       if (valid_base(*j)) {
         count[base2int(*j)]++;
       }
-  const double total = std::accumulate(count.begin(), count.end(), 0.0);
+  const double total = std::accumulate(begin(count), end(count), 0.0);
   base_comp.clear();
-  transform(count.begin(), count.end(), back_inserter(base_comp),
+  transform(begin(count), end(count), back_inserter(base_comp),
             std::bind(std::divides<double>(), std::placeholders::_1, total));
 }
 
@@ -151,8 +151,8 @@ get_base_comp(const vector<string>& sequences, vector<double>& base_comp) {
 string
 reverse_complement(const string& s) {
   string r;
-  transform(s.begin(), s.end(), back_inserter(r), complement);
-  reverse(r.begin(), r.end());
+  transform(begin(s), end(s), back_inserter(r), complement);
+  reverse(begin(r), end(r));
   return r;
 }
 
@@ -160,22 +160,22 @@ reverse_complement(const string& s) {
 /*string   commented out
 revcomp(const string& s) {
   string r;
-  transform(s.begin(), s.end(), back_inserter(r), complement);
-  reverse(r.begin(), r.end());
+  transform(begin(s), end(s), back_inserter(r), complement);
+  reverse(begin(r), end(r));
   return r;
 }*/
 
 
 size_t
 count_valid_bases(const string& s) {
-  return count_if(s.begin(), s.end(), &valid_base);
+  return count_if(begin(s), end(s), &valid_base);
 }
 
 
 size_t
 count_valid_bases(const vector<string>& s) {
   size_t n_valid = 0;
-  for (vector<string>::const_iterator i = s.begin(); i != s.end(); ++i)
+  for (vector<string>::const_iterator i = begin(s); i != end(s); ++i)
     n_valid += count_valid_bases(*i);
   return n_valid;
 }

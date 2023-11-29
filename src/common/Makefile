@@ -14,9 +14,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-ifndef SMITHLAB_CPP
-$(error SMITHLAB_CPP variable undefined)
-endif
+SMITHLAB_CPP = ../smithlab_cpp
 
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra

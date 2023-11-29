@@ -45,7 +45,7 @@ compute_base_comp(const string &infile, vector<double> &basecomp) {
   string line;
   while (getline(in, line)) {
     if (line[0] != '>')
-      for (string::const_iterator i(line.begin()); i != line.end(); ++i)
+      for (string::const_iterator i(begin(line)); i != end(line); ++i)
         if (isvalid(*i))
           ++basecomp[base2int(*i)];
   }
@@ -80,7 +80,7 @@ format_basecomp(const bool FULL_PRECISION,
   if (FULL_PRECISION)
     abbreviate_precision(decimal_places, basecomp);
   std::ostringstream oss;
-  copy(basecomp.begin(), basecomp.end(),
+  copy(begin(basecomp), end(basecomp),
        std::ostream_iterator<double>(oss, "\t"));
   return oss.str();
 }

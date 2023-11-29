@@ -99,7 +99,7 @@ int main(int argc, const char **argv) {
     for (size_t i = 0; i < motifs.size(); ++i) {
       vector<MotifSite> bs = motifs[i].get_sites();
       for (size_t j = 0; j < bs.size(); ++j)
-	if (seq_index.find(bs[j].get_seq_name()) != seq_index.end()) {
+	if (seq_index.find(bs[j].get_seq_name()) != end(seq_index)) {
 	  size_t index = seq_index.find(bs[j].get_seq_name())->second;
 	  size_t length = bs[j].get_length();
 	  size_t offset = bs[j].get_start();
@@ -121,7 +121,7 @@ int main(int argc, const char **argv) {
 	  }
 	  string new_name = names[index] + string(":") +
 	    motifs[i].get_accession();
-	  if (used_names.find(new_name) != used_names.end()) {
+	  if (used_names.find(new_name) != end(used_names)) {
 	    used_names[new_name]++;
 	    new_name += string(":") + cread::toa(used_names[new_name]);
 	  }

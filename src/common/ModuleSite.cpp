@@ -31,16 +31,16 @@ using std::sort;
 ModuleSite::ModuleSite(const std::string& sn, int st, size_t l,
 	     const std::vector<patternSite>& psv):
 	     seq_name(sn), start(st), length(l), module_score(0.0){
-  copy(psv.begin(), psv.end(), back_inserter(sites));
-  sort(sites.begin(), sites.end());
+  copy(begin(psv), end(psv), back_inserter(sites));
+  sort(begin(sites), end(sites));
 }
 
 
 ModuleSite::ModuleSite(const string& sn, int st, size_t l, float ms,
 			const vector<patternSite>& psv):
 			seq_name(sn), start(st), length(l), module_score(ms) {
-  copy(psv.begin(), psv.end(), back_inserter(sites));
-  sort(sites.begin(), sites.end());
+  copy(begin(psv), end(psv), back_inserter(sites));
+  sort(begin(sites), end(sites));
 }
 
 
@@ -65,7 +65,7 @@ ModuleSite::ModuleSite(const string &sn, const string &st, const string &l,
     sites.push_back(patternSite(s[i], atoi(sts[i].c_str()), i,
 			o[i].c_str()[0], atof(scs[i].c_str())));
   }
-  sort(sites.begin(), sites.end());
+  sort(begin(sites), end(sites));
 }
 
 
@@ -92,7 +92,7 @@ ModuleSite::ModuleSite(const string &sn, const float &ms, const vector<string> &
     start = std::min(start, sites[i].start);
   }
   length = static_cast<size_t>(maxst - start);
-  sort(sites.begin(), sites.end());
+  sort(begin(sites), end(sites));
 }
 
 
@@ -118,7 +118,7 @@ ModuleSite::ModuleSite(const string &sn, const vector<string> &s,
     start = std::min(start, sites[i].start);
   }
   length = static_cast<size_t>(maxst - start);
-  sort(sites.begin(), sites.end());
+  sort(begin(sites), end(sites));
 }
 
 
@@ -134,7 +134,7 @@ ModuleSite::ModuleSite(const string &sn, const int st, const size_t l,
       throw InvalidModuleSiteException("Bad initialization: invalid orientation");
     sites.push_back(patternSite(s[i], sts[i], i, o[i].c_str()[0], scs[i]));
   }
-  sort(sites.begin(), sites.end());
+  sort(begin(sites), end(sites));
 }
 
 

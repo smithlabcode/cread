@@ -58,7 +58,7 @@ string
 UCSCGenomeBrowserHeader::tostring() const {
   ostringstream s;
   if (!header_lines.empty()) {
-    copy(header_lines.begin(), header_lines.end() - 1,
+    copy(begin(header_lines), end(header_lines) - 1,
 	 std::ostream_iterator<string>(s, "\n"));
     s << header_lines.back();
   }
@@ -78,7 +78,7 @@ UCSCGenomeBrowserHeader::set_position(const GenomicRegion& region) {
   ostringstream ss;
   ss << position << "\t" 
      << region.get_chrom() << "\t" 
-     << region.get_start() << "\t" << region.get_end();
+     << region.get_start() << "\t" << region.end(get);
   header_lines.push_back(ss.str());
 }
 
@@ -106,7 +106,7 @@ UCSCGenomeBrowserTrack::valid_attributes[] = {
 
 string
 UCSCGenomeBrowserTrack::get_attribute(string label) const {
-  if (attributes.find(label) != attributes.end()) 
+  if (attributes.find(label) != end(attributes)) 
     return attributes.find(label)->second;
   else return "";
 }
@@ -154,7 +154,7 @@ UCSCGenomeBrowserTrack::tostring() const {
   if (!name.empty())
     s << " name=" << name;
   typedef map<string, string>::const_iterator attr_itr;
-  for (attr_itr i = attributes.begin(); i != attributes.end(); ++i) {
+  for (attr_itr i = begin(attributes); i != end(attributes); ++i) {
     s << " " << i->first << "=";
     const bool print_quotes = (i->second.find(' ') != string::npos ||
 			       i->second.find('\t') != string::npos);
@@ -353,8 +353,8 @@ ReadBEDTrack(string filename,
     the_track = the_tracks.front();
   
   vector<vector<GenomicRegion> >::const_iterator i;
-  for (i = the_region_sets.begin(); i != the_region_sets.end(); ++i)
-    the_regions.insert(the_regions.end(), i->begin(), i->end());
+  for (i = begin(the_region_sets); i != end(the_region_sets); ++i)
+    the_regions.insert(end(the_regions), begin(*i), end(*i));
 }
 
 
@@ -380,8 +380,8 @@ ReadBEDTrack(string filename,
     the_track = the_tracks.front();
   
   vector<vector<SimpleGenomicRegion> >::const_iterator i;
-  for (i = the_region_sets.begin(); i != the_region_sets.end(); ++i)
-    the_regions.insert(the_regions.end(), i->begin(), i->end());
+  for (i = begin(the_region_sets); i != end(the_region_sets); ++i)
+    the_regions.insert(end(the_regions), begin(*i), end(*i));
 }
 
 

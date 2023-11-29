@@ -251,14 +251,14 @@ StadenPValue::get_pvalue(ScoringMatrix sm, const float score) const {
   }
 
   // initialize the working vectors
-  fill(used.begin(), used.end(), 0);
-  fill(counts.begin(), counts.end(), 0.0);
+  fill(begin(used), end(used), 0);
+  fill(begin(counts), end(counts), 0.0);
   for (size_t j = 0; j < alphabet_size; ++j) {
     counts[smi[0][j]] += base_comp[j];
     used[smi[0][j]] = 1;
   }
-  copy(used.begin(), used.end(), prev_used.begin());
-  copy(counts.begin(), counts.end(), prev_counts.begin());
+  copy(begin(used), end(used), begin(prev_used));
+  copy(begin(counts), end(counts), begin(prev_counts));
 
   // do the actual tabulation
   for (size_t i = 1; i < width; ++i) {
@@ -317,14 +317,14 @@ StadenPValue::get_score(ScoringMatrix sm, const float pvalue) const {
   }
 
   // initialize the working vectors
-  fill(used.begin(), used.end(), 0);
-  fill(counts.begin(), counts.end(), 0.0);
+  fill(begin(used), end(used), 0);
+  fill(begin(counts), end(counts), 0.0);
   for (size_t j = 0; j < alphabet_size; ++j) {
     counts[smi[0][j]] += base_comp[j];
     used[smi[0][j]] = 1;
   }
-  copy(used.begin(), used.end(), prev_used.begin());
-  copy(counts.begin(), counts.end(), prev_counts.begin());
+  copy(begin(used), end(used), begin(prev_used));
+  copy(begin(counts), end(counts), begin(prev_counts));
 
   // do the actual tabulation
   for (size_t i = 1; i < width; ++i) {
@@ -386,14 +386,14 @@ StadenPValue::get_pvalues(ScoringMatrix sm,
   }
 
   // initialize the working vectors
-  fill(used.begin(), used.end(), 0);
-  fill(counts.begin(), counts.end(), 0.0);
+  fill(begin(used), end(used), 0);
+  fill(begin(counts), end(counts), 0.0);
   for (size_t j = 0; j < alphabet_size; ++j) {
     counts[smi[0][j]] += base_comp[j];
     used[smi[0][j]] = 1;
   }
-  copy(used.begin(), used.end(), prev_used.begin());
-  copy(counts.begin(), counts.end(), prev_counts.begin());
+  copy(begin(used), end(used), begin(prev_used));
+  copy(begin(counts), end(counts), begin(prev_counts));
 
   // do the actual tabulation
   for (size_t i = 1; i < width; ++i) {
@@ -456,14 +456,14 @@ StadenPValue::get_scores(ScoringMatrix sm,
   }
 
   // initialize the working vectors
-  fill(used.begin(), used.end(), 0);
-  fill(counts.begin(), counts.end(), 0.0);
+  fill(begin(used), end(used), 0);
+  fill(begin(counts), end(counts), 0.0);
   for (size_t j = 0; j < alphabet_size; ++j) {
     counts[smi[0][j]] += base_comp[j];
     used[smi[0][j]] = 1;
   }
-  copy(used.begin(), used.end(), prev_used.begin());
-  copy(counts.begin(), counts.end(), prev_counts.begin());
+  copy(begin(used), end(used), begin(prev_used));
+  copy(begin(counts), end(counts), begin(prev_counts));
 
   // do the actual tabulation
   for (size_t i = 1; i < width; ++i) {

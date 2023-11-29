@@ -38,7 +38,7 @@ Word::word_start = "WO";
 
 Word::Word(const Word& w) : Pattern(w), word(w.word) {}
 
-Word& 
+Word&
 Word::operator=(const Word& w) {
   if (this != &w) {
     Pattern::operator=(w);
@@ -80,15 +80,15 @@ Word::format_sites(ostream& os) const {
   sep += PatternID::BINDING_SITE_START + string("  ");
   if (sites.size() > 0) {
     os << PatternID::BINDING_SITE_START << "  ";
-    std::copy(sites.begin(), sites.end() - 1,
-	      std::ostream_iterator<WordSite>(os, sep.c_str()));
+    std::copy(begin(sites), end(sites) - 1,
+              std::ostream_iterator<WordSite>(os, sep.c_str()));
     os << sites.back() << endl;
     os << PatternID::BLANK_PATTERN_LINE << endl;
   }
 }
 
-vector<Word> 
-Word::ReadWordVector(string file_name) {
+vector<Word>
+Word::ReadWordVector(const string &file_name) {
   vector<vector<string> > word_lines;
   ReadPatternLines(file_name, word_lines);
   vector<Word> words;

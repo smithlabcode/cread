@@ -96,17 +96,17 @@ template <class U, class T> T get2nd(pair<U, T> &p) {
 
 feature_info feateval(vector<FBObs> &obs,
                       string &name, size_t index) {
-  float tot_weight = accumulate(obs.begin(), obs.end(), 0.0, FBObs::accum_weight);
-  float pos_weight = accumulate(obs.begin(), obs.end(), 0.0, FBObs::accum_pos_weight);
+  float tot_weight = accumulate(begin(obs), end(obs), 0.0, FBObs::accum_weight);
+  float pos_weight = accumulate(begin(obs), end(obs), 0.0, FBObs::accum_pos_weight);
 
   vector<pair<float, FBObs*> > helper(obs.size());
   for (size_t i = 0; i < obs.size(); ++i) {
     helper[i].first = obs[i][index];
     helper[i].second = &obs[i];
   }
-  sort(helper.begin(), helper.end());
+  sort(begin(helper), end(helper));
   vector<FBObs*> obs_ptrs;
-  transform(helper.begin(), helper.end(), back_inserter(obs_ptrs),
+  transform(begin(helper), end(helper), back_inserter(obs_ptrs),
             [](const pair<float, FBObs*> &p) {return p.second;});
   // ADS: above was "std::ptr_fun(get2nd<float, FBObs*>)"
 
@@ -144,9 +144,9 @@ void get_train_test(vector<FBObs> &obs, size_t fold, size_t part,
   float subset_size = obs.size()/static_cast<float>(fold);
   size_t s = static_cast<size_t>(part*subset_size);
   size_t e = static_cast<size_t>((part + 1)*subset_size);
-  copy(obs.begin(), obs.begin() + s, back_inserter(training));
-  copy(obs.begin() + s, obs.begin() + e, back_inserter(testing));
-  copy(obs.begin() + e, obs.end(), back_inserter(training));
+  copy(begin(obs), begin(obs) + s, back_inserter(training));
+  copy(begin(obs) + s, begin(obs) + e, back_inserter(testing));
+  copy(begin(obs) + e, end(obs), back_inserter(training));
 }
 
 int main (int argc, const char **argv) {
@@ -204,9 +204,9 @@ int main (int argc, const char **argv) {
     vector<string> feature_names;
     FBObs::read_observations(datafile.c_str(), feature_names, observations);
     if (balance) {
-      float total = accumulate(observations.begin(), observations.end(), 0.0,
+      float total = accumulate(begin(observations), end(observations), 0.0,
                                FBObs::accum_weight);
-      float positive = accumulate(observations.begin(), observations.end(), 0.0,
+      float positive = accumulate(begin(observations), end(observations), 0.0,
                                   FBObs::accum_pos_weight);
       for (size_t i = 0; i < observations.size(); ++i)
         if (observations[i].get_outcome())
@@ -219,9 +219,9 @@ int main (int argc, const char **argv) {
       Observation<float, bool>::shuffle(observations);
       vector<FBObs> training, testing;
       get_train_test(observations, cross_validate, 0, training, testing);
-      float test_weight = accumulate(testing.begin(), testing.end(), 0.0,
+      float test_weight = accumulate(begin(testing), end(testing), 0.0,
                                      FBObs::accum_weight);
-      float test_pos = accumulate(testing.begin(), testing.end(), 0.0,
+      float test_pos = accumulate(begin(testing), end(testing), 0.0,
                                          FBObs::accum_pos_weight);
       float test_neg = test_weight - test_pos;
       float total_weight = test_weight;
@@ -233,9 +233,9 @@ int main (int argc, const char **argv) {
       }
       for (size_t i = 1; i < cross_validate; ++i) {
         get_train_test(observations, cross_validate, i, training, testing);
-        test_weight = accumulate(testing.begin(), testing.end(), 0.0,
+        test_weight = accumulate(begin(testing), end(testing), 0.0,
                                  FBObs::accum_weight);
-        test_pos = accumulate(testing.begin(), testing.end(), 0.0,
+        test_pos = accumulate(begin(testing), end(testing), 0.0,
                                      FBObs::accum_pos_weight);
         test_neg = test_weight - test_pos;
         for (size_t j = 0; j < feature_names.size(); ++j) {
@@ -257,9 +257,9 @@ int main (int argc, const char **argv) {
       for (size_t i = 0; i < feature_names.size(); ++i)
         fi.push_back(feateval(observations, feature_names[i], i));
 
-    sort(fi.begin(), fi.end(), InfoOrder());
+    sort(begin(fi), end(fi), InfoOrder());
     ostream* output = (!outfile.empty()) ? new ofstream(outfile.c_str()) : &cout;
-    copy(fi.begin(), fi.end(), ostream_iterator<feature_info>(*output, "\n"));
+    copy(begin(fi), end(fi), ostream_iterator<feature_info>(*output, "\n"));
     if (output != &cout) delete output;
   }
   catch (CREADException &e) {

@@ -71,7 +71,7 @@ Motif::format_sites(ostream& os) const {
   sep += PatternID::BINDING_SITE_START + string("  ");
   if (sites.size() > 0) {
     os << PatternID::BINDING_SITE_START << "  ";
-    std::copy(sites.begin(), sites.end() - 1,
+    std::copy(begin(sites), end(sites) - 1,
 	      std::ostream_iterator<MotifSite>(os, sep.c_str()));
     os << sites.back() << endl;
     os << PatternID::BLANK_PATTERN_LINE << endl;

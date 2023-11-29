@@ -172,7 +172,7 @@ struct row_data {
     return r;
   }
   static string get_separator(vector<size_t> fw) {
-    return string(std::accumulate(fw.begin(), fw.end(), 0), '=') +
+    return string(std::accumulate(begin(fw), end(fw), 0), '=') +
       string((fw.size() - 1) * spacer_width, '=');
   }
 };
@@ -205,8 +205,8 @@ void write_alignment(vector<vector<row_data> > &rows, vector<Motif> &motifs) {
 
 void get_alignment_rows(Motif &motif, vector<Motif> &motif_lib,
                         vector<match> &top_matches, vector<row_data> &rows) {
-  for (vector<match>::iterator i = top_matches.begin();
-       i != top_matches.end(); ++i) {
+  for (vector<match>::iterator i = begin(top_matches);
+       i != end(top_matches); ++i) {
     vector<string> temp_row;
     Motif lm = motif_lib[i->index];
     Matrix libmat = lm.const_get_matrix().freqmat();
@@ -223,7 +223,7 @@ void get_alignment_rows(Motif &motif, vector<Motif> &motif_lib,
     if (right_fill > 0)
       fill_n(back_inserter(lib_consensus), right_fill, ' ');
     else fill_n(back_inserter(consensus), -right_fill, ' ');
-    temp_row.push_back(cread::toa(i - top_matches.begin() + 1));
+    temp_row.push_back(cread::toa(i - begin(top_matches) + 1));
     temp_row.push_back(lm.get_accession());
     temp_row.push_back(lm.get_identifier());
     temp_row.push_back(cread::toa(i->rc));
@@ -238,7 +238,7 @@ string replace_bad_characters(string s) {
   string r = s;
   size_t length = strlen(bad_name_characters);
   for (size_t i = 0; i < length; ++i)
-    replace(r.begin(), r.end(), bad_name_characters[i], replacement);
+    replace(begin(r), end(r), bad_name_characters[i], replacement);
   return r;
 }
 
@@ -283,7 +283,7 @@ void get_matches(Matrix matrix, vector<Motif> &lib,
   if (use_fisher || use_chisquared){
     priority_queue<match, vector<match>, greater<match> > top_matches;
     size_t index = 0;
-    for (motif_iter j = lib.begin(); j != lib.end(); ++j){
+    for (motif_iter j = begin(lib); j != end(lib); ++j){
       if (j->get_width() >= min_width){
         Matrix b = j->get_matrix();
         if (use_fisher){
@@ -355,7 +355,7 @@ void get_matches(Matrix matrix, vector<Motif> &lib,
       matches.push_back(top_matches.top());
       top_matches.pop();
     }
-    std::reverse(matches.begin(), matches.end());
+    std::reverse(begin(matches), end(matches));
   }
 
   else{
@@ -371,7 +371,7 @@ void get_matches(Matrix matrix, vector<Motif> &lib,
     //as a return value, and passes the offset back through a
     //parameter.
 
-    for (motif_iter j = lib.begin(); j != lib.end(); ++j){
+    for (motif_iter j = begin(lib); j != end(lib); ++j){
       if (j->get_width() >= min_width){
         Matrix b = j->get_matrix().freqmat();
         float divergence_forward =
@@ -409,7 +409,7 @@ void get_matches(Matrix matrix, vector<Motif> &lib,
       matches.push_back(top_matches.top());
       top_matches.pop();
     }
-    std::reverse(matches.begin(), matches.end());
+    std::reverse(begin(matches), end(matches));
   }
 }
 
@@ -488,7 +488,7 @@ int main(int argc, const char **argv) {
         motifs = Motif::ReadMotifVector(motifsfile.c_str());
 
         typedef vector<Motif>::iterator motif_iter;
-        for (motif_iter motif = motifs.begin(); motif != motifs.end(); ++motif) {
+        for (motif_iter motif = begin(motifs); motif != end(motifs); ++motif) {
           float best_score = (!use_chisquared && !use_fisher) ?
             numeric_limits<float>::max() : 0;
           Matrix a(!use_chisquared && !use_fisher ?
@@ -497,7 +497,7 @@ int main(int argc, const char **argv) {
           string motif_name = motif->get_accession();
           string best_name = null_name;
           size_t min_width = a.get_width() - max_overhang;
-          for (motif_iter j = library.begin(); j != library.end(); ++j)
+          for (motif_iter j = begin(library); j != end(library); ++j)
             if (j->get_width() >= min_width) {
               Matrix b(j->get_matrix());
               if (use_fisher) {
@@ -541,7 +541,7 @@ int main(int argc, const char **argv) {
             string best_name = null_name;
             size_t min_width = a.get_width() - max_overhang;
             typedef vector<Motif>::iterator motif_iter;
-            for (motif_iter k = library.begin(); k != library.end(); ++k)
+            for (motif_iter k = begin(library); k != end(library); ++k)
               if (k->get_width() >= min_width){
                 Matrix b(k->get_matrix());
                 if (use_fisher) {
@@ -594,7 +594,7 @@ int main(int argc, const char **argv) {
 
       vector<Motif> motif_lib = Motif::ReadMotifVector(libfile.c_str());
       vector<Matrix> lib;
-      transform(motif_lib.begin(), motif_lib.end(), back_inserter(lib),
+      transform(begin(motif_lib), end(motif_lib), back_inserter(lib),
                 [](const Motif &m) {return get_freqmat(m);});
       // std::ptr_fun(&get_freqmat));
 
@@ -604,7 +604,7 @@ int main(int argc, const char **argv) {
         vector<vector<row_data> > rows;
         motifs = Motif::ReadMotifVector(motifsfile.c_str());
         typedef vector<Motif>::iterator motif_iter;
-        for (motif_iter motif = motifs.begin(); motif != motifs.end(); ++motif){
+        for (motif_iter motif = begin(motifs); motif != end(motifs); ++motif){
           Matrix a = (!use_chisquared && !use_fisher) ?
             motif->const_get_matrix().freqmat() : motif->const_get_matrix();
           vector<match> top_matches;
@@ -633,8 +633,8 @@ int main(int argc, const char **argv) {
 
       ostream* out = (outfile.c_str()) ? new ofstream(outfile.c_str()) : &cout;
       if (processing_modules)
-        copy(modules.begin(), modules.end(), ostream_iterator<Module>(*out, "\n"));
-      else copy(motifs.begin(), motifs.end(), ostream_iterator<Motif>(*out, "\n"));
+        copy(begin(modules), end(modules), ostream_iterator<Module>(*out, "\n"));
+      else copy(begin(motifs), end(motifs), ostream_iterator<Motif>(*out, "\n"));
       if (out != &cout) delete out;
     }
 

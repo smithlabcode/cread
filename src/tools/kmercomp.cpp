@@ -55,7 +55,7 @@ const char *kmer_freq_rel_lod_label = "RELATIVE_FREQUENCY_LOD";
 float
 expected_freq(const string &s, const vector<float>& base_comp) {
   float freq = 1;
-  for (string::const_iterator i = s.begin(); i != s.end(); ++i)
+  for (string::const_iterator i = begin(s); i != end(s); ++i)
     freq *= base_comp[base2int(*i)];
   return freq;
 }
@@ -163,7 +163,7 @@ int main(int argc, const char **argv) {
                                                          base_comp)));
       }
       ostream* output = (!outfile.empty()) ? new ofstream(outfile.c_str()) : &cout;
-      copy(words.begin(), words.end(), ostream_iterator<Word>(*output, "\n"));
+      copy(begin(words), end(words), ostream_iterator<Word>(*output, "\n"));
       if (output != &cout) delete output;
     }
     else {

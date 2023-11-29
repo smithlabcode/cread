@@ -116,7 +116,7 @@ MatCompMethods::column_fishertest(const float a[], const float b[]){
   for (size_t i = 0; i < alphabet_size; ++i)
     prob += lgamma(a[i]+1) + lgamma(b[i]+1);
   long double column_prob = 0;
-  for (vector<column_struct>::iterator it = column_matrices.begin(); it != column_matrices.end(); ++it){
+  for (vector<column_struct>::iterator it = begin(column_matrices); it != end(column_matrices); ++it){
     long double this_prob = 0;
     for (size_t i = 0; i < alphabet_size; ++i)
       this_prob += lgamma(it->top[i]+1) + lgamma(it->bottom[i]+1);

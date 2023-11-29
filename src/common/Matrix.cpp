@@ -21,6 +21,8 @@
 
 #include "Matrix.hpp"
 
+#include <iterator>
+
 using std::accumulate;
 using std::fill;
 using std::string;
@@ -28,6 +30,9 @@ using std::vector;
 using std::transform;
 using std::reverse_copy;
 using std::endl;
+
+using std::begin;
+using std::end;
 
 std::ostream&
 operator<<(std::ostream& s, const Matrix& mat) {
@@ -77,8 +82,8 @@ Matrix::Matrix(vector<string> &s) {
       matrix[i] = new float[alphabet_size];
       std::copy(columns[i], columns[i] + alphabet_size, matrix[i]);
     }
-    for (vector<float*>::iterator i = columns.begin();
-         i != columns.end(); ++i)
+    for (vector<float*>::iterator i = std::begin(columns);
+         i != std::end(columns); ++i)
       delete[] *i;
   }
   else matrix = 0;

@@ -74,7 +74,7 @@ Module::format_sites(ostream& os) const {
   sep += PatternID::BINDING_SITE_START + string("  ");
   if (sites.size() > 0) {
     os << PatternID::BINDING_SITE_START << "  ";
-    copy(sites.begin(), sites.end() - 1,
+    copy(cbegin(sites), cend(sites) - 1,
          ostream_iterator<ModuleSite>(os, sep.c_str()));
     os << sites.back() << endl
        << PatternID::BLANK_PATTERN_LINE << endl;

@@ -34,7 +34,7 @@
 /*!
   \class Word
   \brief The word pattern includes patterns consisting
-	 of the 4 nucleotides and 'N'.
+         of the 4 nucleotides and 'N'.
  */
 class Word : public Pattern {
 public:
@@ -51,7 +51,7 @@ public:
 
   // Accessors
   /*! \brief Returns a minimally initialized Word
-	     with word set to the reverse complement of this word
+             with word set to the reverse complement of this word
   */
   Word revcomp() const;
   //! Returns the width of this word
@@ -64,7 +64,7 @@ public:
   }
 
   //! Returns a vector of words retrieved from file_name
-  static std::vector<Word> ReadWordVector(std::string file_name);
+  static std::vector<Word> ReadWordVector(const std::string &file_name);
 
 protected:
   //! The Word type id

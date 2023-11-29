@@ -21,6 +21,8 @@
 
 #include "Pattern.hpp"
 
+#include <iterator>
+
 using std::string;
 using std::vector;
 using std::map;
@@ -28,6 +30,9 @@ using std::ostream;
 using std::ostringstream;
 using std::pair;
 using std::endl;
+
+using std::begin;
+using std::end;
 
 // TODO: in the format_whatever() functions, get rid of the hardcoded
 // strings and replace them with the constants defined here:
@@ -66,34 +71,34 @@ Pattern::Pattern(vector<string>& lines) {
     }
     else if (read_accession) {
       if (line_type(line, PatternID::TYPE_START)) {
-	type = remove_line_id(line);
-	read_type = true;
+        type = remove_line_id(line);
+        read_type = true;
       }
-      if (line_type(line, PatternID::COMMENT_START)) 
-	set_comment(remove_line_id(line));
+      if (line_type(line, PatternID::COMMENT_START))
+        set_comment(remove_line_id(line));
       if (line_type(line, PatternID::ATTRIBUTE_START)) {
-	pair<string, string> att = parse_attribute_line(line);
-	set_attribute(att.first, att.second);
+        pair<string, string> att = parse_attribute_line(line);
+        set_attribute(att.first, att.second);
       }
-      if (line_type(line, PatternID::IDENTIFIER_START)) 
-	identifier = remove_line_id(line);
-      if (line_type(line, PatternID::FACTOR_NAME_START)) 
-	factor_names = remove_line_id(line);
-      if (line_type(line, PatternID::DESCRIPTION_START)) 
-	factor_description = remove_line_id(line);
-      if (line_type(line, PatternID::BASIS_START)) 
-	basis = remove_line_id(line);
+      if (line_type(line, PatternID::IDENTIFIER_START))
+        identifier = remove_line_id(line);
+      if (line_type(line, PatternID::FACTOR_NAME_START))
+        factor_names = remove_line_id(line);
+      if (line_type(line, PatternID::DESCRIPTION_START))
+        factor_description = remove_line_id(line);
+      if (line_type(line, PatternID::BASIS_START))
+        basis = remove_line_id(line);
 
       if (line_type(line, PatternID::ORGANIZATION_LABEL))
-	organization = remove_line_id(line);
+        organization = remove_line_id(line);
 
     }
     else {
       string bad_line = line;
       if (!line_type(line, PatternID::BLANK_PATTERN_LINE) &&
-	  !line_type(line, PatternID::VERSION_LINE)) 
-	throw PatternFileException("Accession must come first in a pattern, "
-				   "not: " + bad_line, i);
+          !line_type(line, PatternID::VERSION_LINE))
+        throw PatternFileException("Accession must come first in a pattern, "
+                                   "not: " + bad_line, i);
     }
   }
   if (!read_type)
@@ -118,7 +123,7 @@ Pattern::Pattern(const Pattern& p) {
 
 }
 
-Pattern& 
+Pattern&
 Pattern::operator=(const Pattern& p) {
   if (this != &p) {
     accession = p.accession;
@@ -154,15 +159,15 @@ Pattern::tostring() const {
   format_organization(os);
 
   format_factor_description(os);
-  
+
   format_representation(os);
-  
+
   format_comment(os);
   format_attributes(os);
-  
+
   format_basis(os);
   format_binding_factors(os);
-  
+
   format_sites(os);
   os << PatternID::PATTERN_TERMINATOR;
   return os.str();
@@ -175,24 +180,24 @@ Pattern::parse_attribute_line(string s) {
   size_t equal_sign_offset = s.find_first_of("=");
   string key = s.substr(0, equal_sign_offset);
   size_t value_offset = s.find_first_of(" ", equal_sign_offset);
-  string value = s.substr(equal_sign_offset + 1, 
-			  value_offset - equal_sign_offset);
+  string value = s.substr(equal_sign_offset + 1,
+                          value_offset - equal_sign_offset);
   return pair<string, string>(key, value);
 }
 
 string
 Pattern::get_attribute(string s) const {
   std::map<string, string>::const_iterator a = attributes.find(s);
-  if (a != attributes.end()) 
+  if (a != std::end(attributes))
     return a->second;
   else return "";
 }
 
 
-void 
+void
 Pattern::format_attributes(ostream& os) const {
-  for (map<string, string>::const_iterator i = attributes.begin();
-       i != attributes.end(); ++i)
+  for (map<string, string>::const_iterator i = std::cbegin(attributes);
+       i != std::cend(attributes); ++i)
     os << "AT  " << i->first << "=" << i->second << endl;
   if (!attributes.empty())
     os << PatternID::BLANK_PATTERN_LINE << endl;
@@ -201,10 +206,10 @@ Pattern::format_attributes(ostream& os) const {
 void
 Pattern::format_accession(ostream& os) const {
   if (!accession.empty())
-    os << "AC  " << accession << endl 
+    os << "AC  " << accession << endl
        << PatternID::BLANK_PATTERN_LINE << endl;
   else throw PatternFormatterException(string("bad accession format") +
-				       accession);
+                                       accession);
 }
 
 void
@@ -213,13 +218,13 @@ Pattern::format_type(ostream& os) const {
     os << PatternID::TYPE_START << "  " << type << endl
        << PatternID::BLANK_PATTERN_LINE << endl;
   else throw PatternFormatterException(string("bad pattern type: ") +
-				       type);
+                                       type);
 }
 
 void
 Pattern::format_comment(ostream& os) const {
   if (!comment.empty())
-    os << "CO  " << comment << endl 
+    os << "CO  " << comment << endl
        << PatternID::BLANK_PATTERN_LINE << endl;
 }
 
@@ -227,36 +232,36 @@ Pattern::format_comment(ostream& os) const {
 void
 Pattern::format_basis(ostream& os) const {
   if (!basis.empty())
-    os << PatternID::BASIS_START << "  " << basis << endl 
+    os << PatternID::BASIS_START << "  " << basis << endl
        << PatternID::BLANK_PATTERN_LINE << endl;
 }
 
 void
 Pattern::format_binding_factors(ostream& os) const {
   if (!binding_factors.empty())
-    os << PatternID::BINDING_FACTOR_START << "  " << binding_factors << endl 
+    os << PatternID::BINDING_FACTOR_START << "  " << binding_factors << endl
        << PatternID::BLANK_PATTERN_LINE << endl;
 }
 
 void
 Pattern::format_factor_description(ostream& os) const {
   if (!factor_description.empty())
-    os << PatternID::DESCRIPTION_START << "  " 
-       << factor_description << endl 
+    os << PatternID::DESCRIPTION_START << "  "
+       << factor_description << endl
        << PatternID::BLANK_PATTERN_LINE << endl;
 }
 
 void
 Pattern::format_identifier(ostream& os) const {
   if (!identifier.empty())
-    os << PatternID::IDENTIFIER_START << "  " << identifier 
+    os << PatternID::IDENTIFIER_START << "  " << identifier
        << endl << PatternID::BLANK_PATTERN_LINE << endl;
 }
 
 void
 Pattern::format_factor_names(ostream& os) const {
   if (!factor_names.empty())
-    os << PatternID::FACTOR_NAME_START << "  " << factor_names << endl 
+    os << PatternID::FACTOR_NAME_START << "  " << factor_names << endl
        << PatternID::BLANK_PATTERN_LINE << endl;
 }
 
@@ -272,7 +277,7 @@ Pattern::format_organization(ostream& os) const {
 // template <class T> void
 // Motif<T>::format_reference_authors(ostream& os)
 // {
-//   if (!reference_authors.empty()) 
+//   if (!reference_authors.empty())
 //     os << reference_authors;
 // }
 
@@ -290,8 +295,8 @@ Pattern::format_organization(ostream& os) const {
 
 
 void
-Pattern::separate_pattern_lines(vector<string> &in, 
-				vector<vector<string> > &out) {
+Pattern::separate_pattern_lines(vector<string> &in,
+                                vector<vector<string> > &out) {
   out.clear();
   out.push_back(vector<string>());
   size_t i;
@@ -322,14 +327,14 @@ Pattern::extract_type(vector<string>& lines) {
   for (size_t i = 0; i < lines.size(); ++i)
     if (line_type(lines[i], PatternID::TYPE_START))
       return remove_line_id(lines[i]);
-  
+
   return "";
 }
 
 bool
 PatternOrder::operator()(const Pattern *m1, const Pattern *m2) const {
-  if (m1->attributes.find(key) == m1->attributes.end() ||
-      m2->attributes.find(key) == m1->attributes.end())
+  if (m1->attributes.find(key) == end(m1->attributes) ||
+      m2->attributes.find(key) == end(m1->attributes))
     throw BadKeyException(key, m1->get_accession());
   string val1 = m1->attributes.find(key)->second;
   string val2 = m2->attributes.find(key)->second;
@@ -341,8 +346,8 @@ PatternOrder::operator()(const Pattern *m1, const Pattern *m2) const {
 
 bool
 PatternOrder::operator()(const Pattern &m1, const Pattern &m2) const {
-  if (m1.attributes.find(key) == m1.attributes.end() ||
-      m2.attributes.find(key) == m1.attributes.end())
+  if (m1.attributes.find(key) == end(m1.attributes) ||
+      m2.attributes.find(key) == end(m1.attributes))
     throw BadKeyException(key, m1.get_accession());
   string val1 = m1.attributes.find(key)->second;
   string val2 = m2.attributes.find(key)->second;
@@ -354,48 +359,48 @@ PatternOrder::operator()(const Pattern &m1, const Pattern &m2) const {
 
 bool
 PatternCutoff::operator()(const Pattern &p) const {
-  if (p.attributes.find(key) == p.attributes.end())
+  if (p.attributes.find(key) == end(p.attributes))
     throw BadKeyException(key, p.get_accession());
   string val = p.attributes.find(key)->second;
-  if (reverse && numeric) 
+  if (reverse && numeric)
     return atof(val.c_str()) > atof(value.c_str());
-  else if (reverse) 
+  else if (reverse)
     return val > value;
-  else if (numeric) 
+  else if (numeric)
     return atof(val.c_str()) < atof(value.c_str());
   else return val < value;
 }
 
 bool
 PatternCutoff::operator()(const Pattern *p) const {
-  if (p->attributes.find(key) == p->attributes.end())
+  if (p->attributes.find(key) == end(p->attributes))
     throw BadKeyException(key, p->get_accession());
   string val = p->attributes.find(key)->second;
-  if (reverse && numeric) 
+  if (reverse && numeric)
     return atof(val.c_str()) > atof(value.c_str());
-  else if (reverse) 
+  else if (reverse)
     return val > value;
-  else if (numeric) 
+  else if (numeric)
     return atof(val.c_str()) < atof(value.c_str());
   else return val < value;
 }
 
 void
 Pattern::ReadPatternLines(string file_name,
-			  vector<vector<string> > &pattern_lines) {
+                          vector<vector<string> > &pattern_lines) {
   std::ifstream in(file_name.c_str());
   if (!in)
     throw PatternFileException("cannot open pattern file " +
-			       string(file_name));
+                               string(file_name));
   vector<string> lines;
   while (!in.eof()) {
     char buffer[pattern_line_size+1];
     in.getline(buffer, pattern_line_size);
-    if (strlen(buffer) > 0) 
+    if (strlen(buffer) > 0)
       lines.push_back(buffer);
   }
   if (lines.empty())
     throw PatternFileException("could not read lines in pattern file " +
-			       string(file_name));
+                               string(file_name));
   Pattern::separate_pattern_lines(lines, pattern_lines);
 }

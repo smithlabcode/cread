@@ -51,9 +51,9 @@ size_t
 BigFastaFile::SequenceInfo::count_newlines(size_t range_start,
                                            size_t range_end) const {
   vector<size_t>::const_iterator lower =
-    lower_bound(newlines.begin(), newlines.end(), range_start - start);
+    lower_bound(cbegin(newlines), cend(newlines), range_start - start);
   vector<size_t>::const_iterator upper =
-    lower_bound(newlines.begin(), newlines.end(), range_end - start);
+    lower_bound(cbegin(newlines), cend(newlines), range_end - start);
   return upper - lower;
 }
 
@@ -115,7 +115,7 @@ BigFastaFile::make_index(string filename) {
 
 BigFastaFile::SeqInfoIter
 BigFastaFile::find_containing_sequence(size_t position) const {
-  return lower_bound(SequenceTable.begin(), SequenceTable.end(), position);
+  return lower_bound(begin(SequenceTable), end(SequenceTable), position);
 }
 
 
@@ -125,12 +125,12 @@ BigFastaFile::get_names(const size_t chunk_start,
   SeqInfoIter start_index = find_containing_sequence(chunk_start);
   //   SeqInfoIter end_index = (chunk_start + chunk_size < filesize) ?
   //     find_containing_sequence(chunk_start + chunk_size) + 1 :
-  //     SequenceTable.end();
+  //     end(SequenceTable);
 
   SeqInfoIter end_index = find_containing_sequence(chunk_start + chunk_size);
   // This check is needed because the end could be between sequences:
   // in the name part
-  if (end_index != SequenceTable.end() &&
+  if (end_index != end(SequenceTable) &&
       chunk_start + chunk_size > end_index->start)
     ++end_index;
 
@@ -174,12 +174,12 @@ BigFastaFile::get_sequences(const size_t chunk_start,
   // chunk
   //   SeqInfoIter end_index = (chunk_start + chunk_size < filesize) ?
   //     find_containing_sequence(chunk_start + chunk_size) + 1 :
-  //     SequenceTable.end();
+  //     end(SequenceTable);
 
   SeqInfoIter end_index = find_containing_sequence(chunk_start + chunk_size);
   // This check is needed because the end could be between sequences:
   // in the name part
-  if (end_index != SequenceTable.end() &&
+  if (end_index != end(SequenceTable) &&
       chunk_start + chunk_size > end_index->start)
     ++end_index;
 
@@ -293,7 +293,7 @@ vector<string>
 FastaFile::get_ids() const {
   if (names.empty()) read();
   vector<string> ids;
-  for (vector<string>::iterator i = names.begin(); i != names.end(); ++i)
+  for (vector<string>::iterator i = begin(names); i != end(names); ++i)
     ids.push_back(i->substr(0, i->find_first_of(" \t")));
   return ids;
 }
@@ -303,7 +303,7 @@ vector<string>
 FastaFile::get_descriptions() const {
   if (names.empty()) read();
   vector<string> descriptions;
-  for (vector<string>::iterator i = names.begin(); i != names.end(); ++i) {
+  for (vector<string>::iterator i = begin(names); i != end(names); ++i) {
     const size_t desc_offset = i->find_first_of(" \t");
     if (desc_offset != string::npos)
       descriptions.push_back(i->substr(desc_offset));
@@ -418,7 +418,7 @@ FastaFile::base_comp_from_files(const vector<string>& fns,
   delete[] buffer;
 
   // get the total number of valid bases
-  const double total = std::accumulate(count.begin(), count.end(), 0.0);
+  const double total = std::accumulate(begin(count), end(count), 0.0);
   base_comp.clear();
   transform(cbegin(count), cend(count), back_inserter(base_comp),
             [&](const char x) {return x/total;});

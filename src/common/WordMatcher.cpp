@@ -61,7 +61,7 @@ get_matches(const Word& word, const vector<string>& seqs,
   vector<WordMatch> hits;
   const size_t max_mismatches = word.get_width() - min_matching_positions;
   get_word_max_mismatch_sequence_set(word.get_word(), seqs, max_mismatches, hits);
-  sort(hits.begin(), hits.end());
+  sort(begin(hits), end(hits));
   for (size_t i = 0; i < min(hits.size(), max_matches); ++i)
     matches.push_back(seqs[hits[i].seqid].substr(hits[i].offset,
 						 word.get_width()));

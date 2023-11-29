@@ -116,12 +116,12 @@ int main(int argc, const char **argv) {
     
     /* HERE IS THE SORT FOR MOTIFS */
     PatternOrder po(key.c_str(), reverse_order, numeric_sort_order);
-    std::stable_sort(patterns.begin(), patterns.end(), po);
+    std::stable_sort(begin(patterns), end(patterns), po);
 
     if (!cutoff.empty()) {
       PatternCutoff pc(key.c_str(), cutoff.c_str(), !reverse_order, numeric_sort_order);
-      patterns.erase(std::find_if(patterns.begin(), patterns.end(), pc),
-		     patterns.end());
+      patterns.erase(std::find_if(begin(patterns), end(patterns), pc),
+		     end(patterns));
     }
     
     if (assign_rank) AssignRanks(patterns);

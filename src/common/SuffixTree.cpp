@@ -20,7 +20,9 @@
  */
 
 #include "SuffixTree.hpp"
+
 #include <cassert>
+#include <iterator>
 
 using std::min;
 using std::max;
@@ -41,6 +43,11 @@ using std::make_pair;
 
 using std::cerr;
 using std::endl;
+
+using std::begin;
+using std::end;
+using std::cbegin;
+using std::cend;
 
 class SuffixNode {
 public:
@@ -182,9 +189,8 @@ SuffixNode::MatchBranch(const char *text, float **scoring_matrix, size_t width,
 
 inline bool
 SuffixNode::HasSequence(size_t min_seqid, size_t max_seqid) const {
-  std::vector<size_t>::const_iterator k =
-    lower_bound(id.begin(), id.end(), min_seqid);
-  return (k != id.end() && *k < max_seqid);
+  auto k = lower_bound(cbegin(id), cend(id), min_seqid);
+  return (k != cend(id) && *k < max_seqid);
 }
 
 
@@ -223,7 +229,7 @@ SuffixNode::tostring(const char *text, size_t depth) const {
   s << "(" << start << "," << end << ") ";
   copy(text + start, text + end, ostream_iterator<char>(s));
   s << " [";
-  copy(id.begin(), id.end(), ostream_iterator<size_t>(s, " "));
+  copy(cbegin(id), cend(id), ostream_iterator<size_t>(s, " "));
   s << "]";
   s << endl;
   for (size_t i = 0; has_children() && i < alphabet_size + 1; i++)
@@ -420,15 +426,16 @@ SuffixNode::CollectIndices() {
     for (size_t i = 0; i <= alphabet_size; ++i)
       if (child[i]) {
         child[i]->CollectIndices();
-        const size_t previous_end = id.size();
-        id.insert(id.end(), child[i]->id.begin(), child[i]->id.end());
-        std::inplace_merge(id.begin(), id.begin() + previous_end, id.end());
+        const auto previous_end = id.size();
+        id.insert(cend(id), cbegin(child[i]->id), cend(child[i]->id));
+        auto b = std::begin(id);
+        inplace_merge(b, b + previous_end, std::end(id));
       }
   }
   /* The commented-out code below should not be needed, because all
      the ids should be at the leaves, and no id should be in more than
      one leaf. */
-  // id.erase(std::unique(id.begin(), id.end()), id.end());
+  // id.erase(std::unique(begin(id), end(id)), end(id));
 }
 
 /******************* SUBSTRING NODE QUERY METHODS ***********/
@@ -627,7 +634,7 @@ void
 SuffixNode::get_locations(const char *word, const char *text,
                           vector<size_t> &locations) const {
   if (*word == '\0')
-    copy(id.begin(), id.end(), back_inserter(locations));
+    copy(cbegin(id), cend(id), back_inserter(locations));
   else {
     SuffixNode *temp;
     if (child && (temp = child[b2i(*word)])) {
@@ -667,8 +674,8 @@ SuffixTree::SuffixTree(const string& s, int d) : sequence(s) {
 
 SuffixTree::SuffixTree(const vector<string>& s, int d) {
   size_t total = 0;
-  vector<string>::const_iterator i(s.begin());
-  for (; i != s.end(); ++i) {
+  vector<string>::const_iterator i(begin(s));
+  for (; i != end(s); ++i) {
     offset.push_back(total);
     sequence.append(*i);
     sequence.append("N");
@@ -775,8 +782,8 @@ SuffixTree::top_scores(vector<float> &A, size_t n_top,
     }
     PQ.pop();
   }
-  std::reverse(A.begin(), A.end());
-  A.erase(A.begin() + n_top, A.end());
+  std::reverse(begin(A), end(A));
+  A.erase(begin(A) + n_top, end(A));
 }
 
 void
@@ -794,7 +801,7 @@ SuffixTree::scores_greater(vector<float> &V, float threshold,
   for (size_t i = 0; i < matrix.get_width(); i++)
     delete[] scoremat[i];
   delete[] scoremat;
-  for (vector<valnode>::iterator i = B.begin(); i != B.end(); ++i)
+  for (vector<valnode>::iterator i = begin(B); i != end(B); ++i)
     for (size_t j = 0; j < i->second->id.size(); ++j) {
       pair<size_t, size_t> ind_off(index2seq_offset(i->second->id[j]));
       if (seqid == -1 || static_cast<int>(ind_off.first) == seqid)
@@ -874,8 +881,8 @@ SuffixTree::top_scores_indices(vector<seq_pos_score> &A, size_t n_top,
     }
     PQ.pop();
   }
-  std::reverse(A.begin(), A.end());
-  A.erase(A.begin() + min(n_top, A.size()), A.end());
+  std::reverse(begin(A), end(A));
+  A.erase(begin(A) + min(n_top, A.size()), end(A));
 }
 
 void
@@ -897,9 +904,9 @@ SuffixTree::scores_greater_indices(float threshold,
     delete[] scoremat[i];
   delete[] scoremat;
   // TODO: make sure nodes_above_threshold is sorted properly
-  sort(nodes_above_threshold.begin(), nodes_above_threshold.end());
-  for (vector<valnode>::iterator i = nodes_above_threshold.begin();
-       i != nodes_above_threshold.end(); ++i)
+  sort(begin(nodes_above_threshold), end(nodes_above_threshold));
+  for (vector<valnode>::iterator i = begin(nodes_above_threshold);
+       i != end(nodes_above_threshold); ++i)
     for (size_t j = 0; j < i->second->id.size(); ++j) {
       pair<size_t, size_t> ind_off(index2seq_offset(i->second->id[j]));
       if (seqid == -1 || static_cast<int>(ind_off.first) == seqid)
@@ -921,8 +928,8 @@ SuffixTree::window_scores_greater_indices(std::vector<seq_pos_score> &A, float t
     delete[] scoremat[i];
   delete[] scoremat;
 
-  sort(B.begin(), B.end());
-  for (vector<valnode>::iterator i = B.begin(); i != B.end(); ++i){
+  sort(begin(B), end(B));
+  for (vector<valnode>::iterator i = begin(B); i != end(B); ++i){
     for (size_t j = 0; j < i->second->id.size(); ++j){
       // check to make sure in window
       if (i->second->id[j] > start && i->second->id[j] < stop)
@@ -959,8 +966,8 @@ SuffixTree::window_scores_greater_indices(std::vector<seq_pos_score> &A,
     delete[] scoremat[i];
   delete[] scoremat;
 
-  sort(B.begin(), B.end());
-  for (vector<valnode>::iterator i = B.begin(); i != B.end(); ++i)
+  sort(begin(B), end(B));
+  for (vector<valnode>::iterator i = begin(B); i != end(B); ++i)
     for (size_t j = 0; j < i->second->id.size(); ++j)
       // check to make sure doesn't overlap sites in recorded_sites
       if (no_overlaps(recorded_sites, i->second->id[j], matrix.get_width()))
@@ -986,7 +993,7 @@ void
 SuffixTree::get_locations(string w, vector<pair<size_t, size_t> > &L) const {
   vector<size_t> locations;
   root->get_locations(w.c_str(), sequence.c_str(), locations);
-  transform(locations.begin(), locations.end(), back_inserter(L),
+  transform(begin(locations), end(locations), back_inserter(L),
             [&](const size_t loc) {return index2seq_offset(loc);});
 }
 // TO DO: CHECK FOR MATRIX WIDTH

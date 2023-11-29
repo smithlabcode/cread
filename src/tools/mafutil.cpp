@@ -110,14 +110,14 @@ read_db_dir(const string& dirname, string filename_suffix) {
     exit(EXIT_FAILURE);
   }
   
-  transform(filenames.begin(), filenames.end(),
-	    filenames.begin(), std::bind2nd(std::ptr_fun(&strip_suffix),
+  transform(begin(filenames), end(filenames),
+	    begin(filenames), std::bind2nd(std::ptr_fun(&strip_suffix),
 					    filename_suffix));
 
   vector<GenomicRegion> file_regions;
-  transform(filenames.begin(), filenames.end(),
+  transform(begin(filenames), end(filenames),
 	    back_inserter(file_regions), std::ptr_fun(&filename2region));
-  sort(file_regions.begin(), file_regions.end());
+  sort(begin(file_regions), end(file_regions));
   return file_regions;
 }
 
@@ -131,7 +131,7 @@ get_regions_by_filename(const vector<GenomicRegion>& file_regions,
   
   for (size_t i = 0; i < regions.size(); ++i) {
     const size_t file_id = 
-      find_closest(file_regions, regions[i]) - file_regions.begin();
+      find_closest(file_regions, regions[i]) - begin(file_regions);
     regions_by_file[file_id].push_back(regions[i]);
   }
 }
@@ -328,15 +328,15 @@ read_species_names(const string filename,
     in.getline(buffer, buffer_size);
     if (in.gcount() == buffer_size - 1)
       throw "Line too long in file: " + filename;
-    species_names.insert(species_names.end(), buffer);
+    species_names.insert(end(species_names), buffer);
     in.peek();
   }
   in.close();
 
   if (VERBOSE) {
     cerr << "species to keep:" << endl;
-    for (set<string>::iterator i(species_names.begin()); 
-	 i != species_names.end(); ++i)
+    for (set<string>::iterator i(begin(species_names)); 
+	 i != end(species_names); ++i)
       cerr << *i << endl;
   }
 }
@@ -351,7 +351,7 @@ get_species_alignment(const set<string> &species_names,
   vector<string> good_segments;
   
   for (size_t i = 0; i < regions.size(); ++i)
-    if (species_names.find(regions[i].get_name()) != species_names.end()) {
+    if (species_names.find(regions[i].get_name()) != end(species_names)) {
       good_regions.push_back(regions[i]);
       good_segments.push_back(segments[i]);
     }
@@ -390,7 +390,7 @@ extract_regions_dir(const string alndir,
   vector<GenomicRegion> file_regions = read_db_dir(alndir, alnsuffix);
   if (VERBOSE) {
     cerr << "valid regions found:" << endl;
-    std::copy(file_regions.begin(), file_regions.end(), 
+    std::copy(begin(file_regions), end(file_regions), 
 	      std::ostream_iterator<GenomicRegion>(cerr, "\n"));
   }
 
@@ -447,7 +447,7 @@ extract_regions_dir_idx(const string alndir,
   vector<GenomicRegion> file_regions = read_db_dir(alndir, alnsuffix);
   if (VERBOSE) {
     cerr << "valid regions found:" << endl;
-    std::copy(file_regions.begin(), file_regions.end(), 
+    std::copy(begin(file_regions), end(file_regions), 
 	      std::ostream_iterator<GenomicRegion>(cerr, "\n"));
   }
 
@@ -625,7 +625,7 @@ int main(int argc, const char **argv) {
 	
 	vector<GenomicRegion> regions;
 	ReadBEDFile(regions_file.c_str(), regions);
-	sort(regions.begin(), regions.end());
+	sort(begin(regions), end(regions));
 
 	if (alnsuffix.c_str()) {
 	  if (indexsuffix.c_str())

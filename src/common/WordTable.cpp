@@ -55,7 +55,7 @@ WordTable::WordTable(std::vector<string> &seqs, size_t wordsize,
   vector<size_t> counts;
   float total = kmer_counts(seqs, counts, mersize);
 
-  std::transform(counts.begin(), counts.end(), back_inserter(mer_freq),
+  std::transform(begin(counts), end(counts), back_inserter(mer_freq),
                  [&](const float x) {return x/total;});
   nwords = static_cast<size_t>(pow(static_cast<float>(alphabet_size),
                                    static_cast<int>(wordsize)));
@@ -156,7 +156,7 @@ WordTable::WordTable(string filename, size_t wordsize,
   mersize = std::min(gapstart, wordsize - gapstart);
   vector<size_t> counts;
   const float total = kmer_counts_from_file(filename, counts, mersize);
-  std::transform(counts.begin(), counts.end(), back_inserter(mer_freq),
+  std::transform(begin(counts), end(counts), back_inserter(mer_freq),
                  [&](const float x) {return x/total;});
   nwords = static_cast<size_t>(pow(static_cast<float>(alphabet_size),
                                    static_cast<int>(wordsize)));
@@ -256,21 +256,21 @@ WordTable::tostring() const {
   ostringstream ss;
   ss << wordsize << endl << gapstart << endl
      << maxgap << endl << nseqs << endl;
-  copy(base_comp.begin(), base_comp.end(),
+  copy(begin(base_comp), end(base_comp),
        ostream_iterator<float>(ss, "\n"));
   ss << mersize << endl;
-  copy(mer_freq.begin(), mer_freq.end(),
+  copy(begin(mer_freq), end(mer_freq),
        ostream_iterator<float>(ss, "\n"));
-  copy(nposs.begin(), nposs.end(),
+  copy(begin(nposs), end(nposs),
        ostream_iterator<size_t>(ss, "\n"));
   size_t count = 0;
-  for (vector<vector<size_t> >::const_iterator i = hits.begin();
-       i != hits.end(); ++i) {
+  for (vector<vector<size_t> >::const_iterator i = begin(hits);
+       i != end(hits); ++i) {
     char mymer[100];
     i2mer(mymer, wordsize, count);
     mymer[wordsize] = '\0';
     ss << mymer << "\t";
-    copy(i->begin(), i->end(), ostream_iterator<size_t>(ss, "\t"));
+    copy(i->begin(), end(*i), ostream_iterator<size_t>(ss, "\t"));
     ss << endl;
     ++count;
   }
@@ -284,19 +284,19 @@ WordTable::WriteWordTableText(string filename = "") const {
       << gapstart << " " << sizeof(gapstart) << endl
       << maxgap << " " << sizeof(maxgap) <<  endl
       << nseqs << " " << sizeof(nseqs) << endl;
-  copy(base_comp.begin(), base_comp.end(),
+  copy(begin(base_comp), end(base_comp),
        ostream_iterator<float>(out, "\n"));
   out << alphabet_size*sizeof(float) << endl;
   out << mersize << " " << sizeof(mersize) << endl;
-  copy(mer_freq.begin(), mer_freq.end(),
+  copy(begin(mer_freq), end(mer_freq),
        ostream_iterator<float>(out, "\n"));
   out << mer_freq.size()*sizeof(float) << endl;
-  copy(nposs.begin(), nposs.end(),
+  copy(begin(nposs), end(nposs),
        ostream_iterator<size_t>(out, "\t"));
   out << nposs.size()*sizeof(size_t) << endl;
-  vector<vector<size_t> >::const_iterator i = hits.begin();
-  for (; i != hits.end(); ++i) {
-    copy(i->begin(), i->end(), ostream_iterator<size_t>(out, "\t"));
+  vector<vector<size_t> >::const_iterator i = begin(hits);
+  for (; i != end(hits); ++i) {
+    copy(i->begin(), end(*i), ostream_iterator<size_t>(out, "\t"));
     out << i->size()*sizeof(size_t);
     out << endl;
   }
@@ -320,14 +320,14 @@ WordTable::WriteWordTable(const string &filename) const {
   out.write((char*)&int_mersize, sizeof(int_mersize));
   out.write((char*)&mer_freq.front(), mer_freq.size()*sizeof(float));
 
-  for (vector<size_t>::const_iterator i = nposs.begin();
-       i != nposs.end(); ++i) {
+  for (vector<size_t>::const_iterator i = begin(nposs);
+       i != end(nposs); ++i) {
     const int int_nposs = static_cast<int>(*i);
     out.write((char*)&int_nposs, sizeof(int_nposs));
   }
-  for (vector<vector<size_t> >::const_iterator i = hits.begin();
-       i != hits.end(); ++i) {
-    for (vector<size_t>::const_iterator j = i->begin(); j != i->end(); ++j) {
+  for (vector<vector<size_t> >::const_iterator i = begin(hits);
+       i != end(hits); ++i) {
+    for (vector<size_t>::const_iterator j = begin(*i); j != end(*i); ++j) {
       const int int_hits = static_cast<int>(*j);
       out.write((char*)&int_hits, sizeof(int_hits));
     }
@@ -412,9 +412,8 @@ WordTable::ReadWordTable(string filename) {
            (wt.maxgap + 1)*sizeof(int_nposs.front()));
   // and convert it to size_t
   wt.nposs = vector<size_t>(wt.maxgap + 1);
-  vector<size_t>::iterator j = wt.nposs.begin();
-  for (vector<int>::iterator i = int_nposs.begin();
-       i != int_nposs.end(); ++i, ++j)
+  auto j = begin(wt.nposs);
+  for (auto i = begin(int_nposs); i != end(int_nposs); ++i, ++j)
     *j = static_cast<size_t>(*i);
 
   // Now read the words' frequencies

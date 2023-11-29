@@ -189,7 +189,7 @@ IndexedSuffixNode::tostring(const char *text, size_t depth) const {
   if (has_children()) {
     vector<size_t> indices;
     collect_leaf_indices(indices);
-    copy(indices.begin(), indices.end(),
+    copy(cbegin(indices), cend(indices),
          std::ostream_iterator<size_t>(s, ","));
   }
   else s << end;
@@ -543,7 +543,7 @@ IndexedSuffixTree::scores_greater_indices(const ScoringMatrix& sm,
   destroy_st_scoring_matrix(scoremat, sm.get_width());
   // TODO: make sure matching_nodes is sorted properly
   vector<valnode>::iterator i;
-  for (i = matching_nodes.begin(); i != matching_nodes.end(); ++i) {
+  for (i = begin(matching_nodes); i != end(matching_nodes); ++i) {
     vector<size_t> indices;
     if (i->second->is_leaf())
       final_matches.push_back(pos_score(i->second->end -
@@ -586,8 +586,8 @@ IndexedSuffixTree::top_scores_indices(const ScoringMatrix& matrix,
     }
     top_matching_nodes.pop();
   }
-  std::reverse(final_matches.begin(), final_matches.end());
-  final_matches.erase(final_matches.begin() +
+  std::reverse(begin(final_matches), end(final_matches));
+  final_matches.erase(begin(final_matches) +
                       std::min(n_top, final_matches.size()),
-                      final_matches.end());
+                      end(final_matches));
 }

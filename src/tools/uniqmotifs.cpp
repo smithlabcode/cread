@@ -141,11 +141,11 @@ int main(int argc, const char **argv) {
     if (!processing_modules) {
       vector<Motif> motifs_v = Motif::ReadMotifVector(motifsfile.c_str());
       list<Motif> motifs;
-      copy(motifs_v.begin(), motifs_v.end(), back_inserter(motifs));
+      copy(begin(motifs_v), end(motifs_v), back_inserter(motifs));
       if (keep_eliminated)
-        for (list<Motif>::iterator i = motifs.begin(); i != motifs.end();) {
+        for (list<Motif>::iterator i = begin(motifs); i != end(motifs);) {
           list<Motif>::iterator found =
-            find_if(motifs.begin(), i, [&](const Motif &m) {return equiv_motifs(m, *i);});
+            find_if(begin(motifs), i, [&](const Motif &m) {return equiv_motifs(m, *i);});
           // ADS: above was "bind2nd(ptr_fun(equiv_motifs), *i)"
           if (found == i) ++i;
           else {
@@ -157,13 +157,13 @@ int main(int argc, const char **argv) {
         }
       else {
         // ADS: below, was using "bind2nd(ptr_fun(equiv_motifs), *i)"
-        for (list<Motif>::iterator i = motifs.begin(); i != motifs.end();)
-          if (find_if(motifs.begin(), i, [&](const Motif &m) {return equiv_motifs(m, *i);}) == i) ++i;
+        for (list<Motif>::iterator i = begin(motifs); i != end(motifs);)
+          if (find_if(begin(motifs), i, [&](const Motif &m) {return equiv_motifs(m, *i);}) == i) ++i;
           else i = motifs.erase(i);
       }
       ostream* motifout = (outfile.c_str()) ? new ofstream(outfile.c_str()) : &cout;
       size_t rank = 0;
-      for (list<Motif>::iterator i = motifs.begin(); i != motifs.end(); ++i) {
+      for (list<Motif>::iterator i = begin(motifs); i != end(motifs); ++i) {
         if (i->get_attribute(elim_label) == "" && rank++ == ntop)
           break;
         if (rank_label.c_str()){
@@ -178,11 +178,11 @@ int main(int argc, const char **argv) {
     else {
       vector<Module> modules_v = Module::ReadModuleVector(motifsfile.c_str());
       list<Module> modules;
-      copy(modules_v.begin(), modules_v.end(), back_inserter(modules));
+      copy(begin(modules_v), end(modules_v), back_inserter(modules));
       modules_v.clear();
       if (keep_eliminated)
-        for (list<Module>::iterator i = modules.begin(); i != modules.end();) {
-          list<Module>::iterator found = find_if(modules.begin(), i,
+        for (list<Module>::iterator i = begin(modules); i != end(modules);) {
+          list<Module>::iterator found = find_if(begin(modules), i,
                                                  [&](const Module &m) {
                                                    return equiv_modules(m, *i);
                                                  });
@@ -196,13 +196,13 @@ int main(int argc, const char **argv) {
           }
         }
       else
-        for (list<Module>::iterator i = modules.begin(); i != modules.end();)
-          if (find_if(modules.begin(), i, [&](const Module &m) { return equiv_modules(m, *i); }) == i)
+        for (list<Module>::iterator i = begin(modules); i != end(modules);)
+          if (find_if(begin(modules), i, [&](const Module &m) { return equiv_modules(m, *i); }) == i)
             ++i;
           else i = modules.erase(i);
       ostream* moduleout = (outfile.c_str()) ? new ofstream(outfile.c_str()) : &cout;
       size_t rank = 0;
-      for (list<Module>::iterator i = modules.begin(); i != modules.end(); ++i) {
+      for (list<Module>::iterator i = begin(modules); i != end(modules); ++i) {
         if (i->get_attribute(elim_label) == "" && rank++ == ntop)
           break;
         if (rank_label.c_str()) {
